@@ -33,7 +33,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
-import ModalSignIn from '../../views/ModalSignIn.vue'
+import ModalSignIn from '../../views/Auth/ModalSignIn.vue'
 import HeaderLogo from './HeaderLogo.vue'
 
 const router = useRouter()
