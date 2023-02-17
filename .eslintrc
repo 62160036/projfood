@@ -1,0 +1,63 @@
+{
+  "extends": "@antfu",
+  "rules": {
+    "vue/component-tags-order": [
+      "error",
+      {
+        "order": [
+          "template",
+          "script:not([setup])",
+          "script[setup]",
+          "style:not([scoped])",
+          "style[scoped]",
+          "i18n[locale=en]",
+          "i18n:not([locale=en])"
+        ]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": "warn",
+    "vue/v-slot-style": [
+      "warn",
+      {
+        "atComponent": "v-slot",
+        "default": "v-slot",
+        "named": "longform"
+      }
+    ],
+    "no-console": [
+      "warn",
+      {
+        "allow": [
+          "debug",
+          "info",
+          "warn",
+          "error"
+        ]
+      }
+    ],
+    "no-debugger": "off",
+    "vue/custom-event-name-casing": [
+      "error",
+      "camelCase",
+      {
+        "ignores": [
+          "/^[a-z][A-Za-z0-9]*:[a-z][A-Za-z0-9]*$/u"
+        ]
+      }
+    ],
+    "vue/attribute-hyphenation": [
+      "error",
+      "never",
+      {
+        "ignore": []
+      }
+    ],
+    "vue/v-on-event-hyphenation": [
+      "error",
+      "never",
+      {
+        "ignore": []
+      }
+    ]
+  }
+}
