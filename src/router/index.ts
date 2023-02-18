@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -17,8 +18,24 @@ const router = createRouter({
       path: '/sign-up',
       name: 'SignUp',
       component: () => import('../views/Auth/SignUp.vue'),
+
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (getAuth().currentUser) {
+      next()
+    }
+    else {
+      alert('You are not logged in!')
+      next({ name: 'Home' })
+    }
+  }
+  else {
+    next()
+  }
 })
 
 export default router

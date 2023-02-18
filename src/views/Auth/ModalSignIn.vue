@@ -1,28 +1,41 @@
 <template>
-  <Dialog v-model:visible="displayModal" header="Sign In" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '30%' }" :modal="true">
+  <Dialog v-model:visible="displayModal" header="Sign In" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
     <div>
-      <form class="p-fluid" @submit.prevent="handleSubmit(!v$.$invalid)">
-        <div class="mb-4">
-          <div class="p-float-label">
-            <InputText id="username" v-model="v$.username.$model" :class="{ 'p-invalid': v$.username.$invalid && submitted }" />
-            <label for="username" :class="{ 'p-error': v$.username.$invalid && submitted }">Username:</label>
-          </div>
-          <small v-if="(v$.username.$invalid && submitted)" class="p-error">{{ v$.username.required.$message.replace('Value', 'Username') }}</small>
+      <FormKit
+        type="form"
+        :formClass="submitted ? 'hide' : 'show'"
+        submitLabel="เข้าสู่ระบบ"
+        :actions="false"
+        @submit="handleSubmit"
+      >
+        <div class="mb-2">
+          <label for="email">อีเมล<span class="text-danger">*</span></label>
+          <FormKit
+            v-model="state.email"
+            type="email"
+            validation="required|email"
+            :validationMessages="{
+              required: 'จำเป็นต้องกรอกอีเมล',
+              email: 'กรุณากรอกอีเมลให้ถูกต้อง',
+            }"
+            prefixIcon="email"
+            validationVisibility="dirty"
+          />
         </div>
-        <div class="mb-0">
-          <div class="p-float-label">
-            <Password id="password" v-model="v$.password.$model" :class="{ 'p-invalid': v$.password.$invalid && submitted }" toggleMask :feedback="false">
-              <template v-slot:footer>
-                <p class="mt-2">
-                  Suggestions
-                </p>
-                <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                  <li>Minimum 8 characters</li>
-                </ul>
-              </template>
-            </Password>
-            <label for="password" :class="{ 'p-error': v$.password.$invalid && submitted }">Password<span class="text-danger">*</span></label>
-          </div>
+        <div class="mb-2">
+          <label for="password">รหัสผ่าน<span class="text-danger">*</span></label>
+          <FormKit
+            v-model="state.password"
+            type="password"
+            name="password"
+            validation="required"
+            :validationMessages="{
+              required: 'จำเป็นต้องกรอกรหัสผ่าน',
+            }"
+            prefixIcon="password"
+            suffixIcon="eyeClosed"
+            @suffixIconClick="handleIconClick"
+          />
         </div>
         <div class="mb-3">
           <a href="#" class="link-primary text-remove-underline">Forgot password?</a>
@@ -36,70 +49,74 @@
             Signup Now
           </a>
         </div>
-      </form>
+      </FormKit>
     </div>
   </Dialog>
   <Toast position="bottom-left" />
 </template>
 
 <script setup lang="ts">
-import { minLength, required } from '@vuelidate/validators'
-import { useVuelidate } from '@vuelidate/core'
-import { computed, reactive, ref } from 'vue'
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
 import Toast from 'primevue/toast'
 import Button from 'primevue/button'
+import { getAuth, signInWithEmailAndPassword } from '@firebase/auth'
 
 interface signInState {
-  username: string
+  email: string
   password: string
 }
 
+const router = useRouter()
 const state = reactive<signInState>({
-  username: '',
+  email: '',
   password: '',
 
 })
-
-const rules = computed(() => {
-  return {
-    username: { required },
-    password: { required, minLength: minLength(8) },
-  }
-})
 const submitted = ref(false)
-const showMessage = ref(false)
 
-const v$ = useVuelidate(rules, state)
 const resetForm = () => {
-  state.username = ''
+  state.email = ''
   state.password = ''
   submitted.value = false
 }
 
+const displayModal = ref(false)
+
 const toast = useToast()
 const showSuccess = () => {
-  toast.add({ severity: 'success', summary: 'Success Message', detail: 'Successful registration', life: 3000 })
+  toast.add({ severity: 'success', summary: 'Success Message', detail: 'เข้าสู่ระบบสำเร็จ', life: 3000 })
 }
 const showError = () => {
   toast.add({ severity: 'error', summary: 'Error Message', detail: 'Please fill in the required fields', life: 3000 })
 }
 
-const handleSubmit = (isFormValid: any) => {
+const handleSubmit = () => {
   submitted.value = true
+  const auth = getAuth()
+  signInWithEmailAndPassword(auth, state.email, state.password)
+    .then((data) => {
+      // Signed in
 
-  if (!isFormValid)
-    return showError()
-  showSuccess()
+      showSuccess()
+      resetForm()
+      displayModal.value = false
+      router.push('/')
+    })
+    .catch((error) => {
+      const errorCode = error.code
+      const errorMessage = error.message
+      console.log(errorCode, errorMessage)
+      showError()
+    })
 }
 
-const displayModal = ref(false)
-
-const router = useRouter()
+const handleIconClick = (node: any) => {
+  node.props.suffixIcon = node.props.suffixIcon === 'eye' ? 'eyeClosed' : 'eye'
+  node.props.type = node.props.type === 'password' ? 'text' : 'password'
+}
 
 function goToSignUp() {
   router.push('/sign-up')
@@ -107,6 +124,7 @@ function goToSignUp() {
 
 function openModal() {
   displayModal.value = true
+  resetForm()
 }
 
 defineExpose({
