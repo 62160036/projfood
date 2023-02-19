@@ -17,7 +17,7 @@
           <SplitButton :label="`${user.firstname} ${user.lastname}`" :model="menu" class="p-button-text p-button-secondary mb-2" />
         </div>
         <div class="cart">
-          <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" badge="8" badgeClass="p-badge-danger" />
+          <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" />
         </div>
       </div>
     </div>
@@ -51,7 +51,10 @@ import SplitButton from 'primevue/splitbutton'
 import ModalSignIn from '../../views/Auth/ModalSignIn.vue'
 import db from '../../main'
 
+import UserData from '../../../projfoodApi/users'
 import HeaderLogo from './HeaderLogo.vue'
+
+const countCart = ref<string>('100')
 
 const menu = [
   {
@@ -76,6 +79,7 @@ const menu = [
   },
 ]
 
+const userData = UserData()
 const router = useRouter()
 const isLoggedin = ref(false)
 const user = ref({
@@ -102,8 +106,8 @@ const toast = useToast()
 const showSuccess = () => {
   toast.add({ severity: 'success', summary: 'Success Message', detail: 'ออกจากระบบสำเร็จ', life: 3000 })
 }
-const showError = () => {
-  toast.add({ severity: 'error', summary: 'Error Message', detail: 'ออกจากระบบไม่สำเร็จ', life: 3000 })
+const showError = (summary: string, detail: string, life: number) => {
+  toast.add({ severity: 'error', summary, detail, life })
 }
 const modalSignIn = ref<InstanceType<typeof ModalSignIn>>(null!)
 
@@ -123,17 +127,26 @@ function handleSignOut() {
     showSuccess()
   }).catch((error) => {
     console.log(error)
-    showError()
+    showError('แจ้งเตือนการออกจากระบบไม่สำเร็จ', 'ออกจากระบบไม่สำเร็จ', 3000)
   })
 }
 
+// function updateUserData() {
+//   const auth = getAuth()
+//   userData.updateUser(auth.currentUser!.uid, 'testeeeee')
+// }
+
 (async () => {
   const auth = getAuth()
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       isLoggedin.value = true
-      if (auth)
+      if (auth && auth.currentUser) {
+        if (!auth.currentUser.emailVerified)
+          showError('แจ้งเตือนการยืนยันอีเมล', 'กรุณายืนยันอีเมลของคุณ', 600000)
         readUserData(auth.currentUser!.uid)
+      }
     }
 
     else { isLoggedin.value = false }

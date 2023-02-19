@@ -207,7 +207,7 @@ import Card from 'primevue/card'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth'
 import Header from '../../components/Header/Header.vue'
 import UserData from '../../../projfoodApi/users'
 
@@ -282,13 +282,15 @@ const toggleDialog = () => {
   }
 }
 
-const handleSubmit = () => {
+async function handleSubmit() {
   // Let's pretend this is an ajax request:
   submitted.value = true
 
   createUserWithEmailAndPassword(getAuth(), state.email, state.password)
     .then((data) => {
+      sendEmailVerification(data.user)
       users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, state.address, state.sub_district, state.district, state.province, state.zip)
+
       showSuccess()
       toggleDialog()
     })

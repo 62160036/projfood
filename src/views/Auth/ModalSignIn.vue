@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="displayModal" header="Sign In" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
+  <Dialog v-model:visible="displayModal" header="เข้าสู่ระบบ" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
     <div>
       <FormKit
         type="form"
@@ -9,7 +9,7 @@
         @submit="handleSubmit"
       >
         <div class="mb-2">
-          <label for="email">อีเมล<span class="text-danger">*</span></label>
+          <label for="email">อีเมล:</label>
           <FormKit
             v-model="state.email"
             type="email"
@@ -23,7 +23,7 @@
           />
         </div>
         <div class="mb-2">
-          <label for="password">รหัสผ่าน<span class="text-danger">*</span></label>
+          <label for="password">รหัสผ่าน:</label>
           <FormKit
             v-model="state.password"
             type="password"
@@ -38,15 +38,15 @@
           />
         </div>
         <div class="mb-3">
-          <a href="#" class="link-primary text-remove-underline">Forgot password?</a>
+          <a href="#" class="link-primary text-remove-underline">ลืมรหัสผ่าน?</a>
         </div>
         <div class="mb-3">
-          <Button type="submit" label="Sign In" class="mt-2 p-button-secondary" />
+          <Button type="submit" label="เข้าสู่ระบบ" class="mt-2 p-button-secondary" />
         </div>
         <div class="mb-3">
-          <label class="me-1">Not yet a member?</label>
+          <label class="me-1">ยังไม่มีบัญชีใช่ไหม?</label>
           <a class="link-primary text-remove-underline" @click="goToSignUp">
-            Signup Now
+            ลงทะเบียนเลย
           </a>
         </div>
       </FormKit>
@@ -89,17 +89,16 @@ const toast = useToast()
 const showSuccess = () => {
   toast.add({ severity: 'success', summary: 'Success Message', detail: 'เข้าสู่ระบบสำเร็จ', life: 3000 })
 }
-const showError = () => {
-  toast.add({ severity: 'error', summary: 'Error Message', detail: 'Please fill in the required fields', life: 3000 })
+const showError = (detail: string) => {
+  toast.add({ severity: 'error', summary: 'Error Message', detail, life: 3000 })
 }
 
 const handleSubmit = () => {
   submitted.value = true
   const auth = getAuth()
+
   signInWithEmailAndPassword(auth, state.email, state.password)
     .then((data) => {
-      // Signed in
-
       showSuccess()
       resetForm()
       displayModal.value = false
@@ -109,7 +108,7 @@ const handleSubmit = () => {
       const errorCode = error.code
       const errorMessage = error.message
       console.log(errorCode, errorMessage)
-      showError()
+      showError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
     })
 }
 
