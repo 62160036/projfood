@@ -280,12 +280,6 @@ const resetForm = () => {
 
 const router = useRouter()
 const toast = useToast()
-const showSuccess = () => {
-  toast.add({ severity: 'success', summary: 'Success Message', detail: 'Successful registration', life: 3000 })
-}
-const showError = () => {
-  toast.add({ severity: 'error', summary: 'Error Message', detail: 'Please fill in the required fields', life: 3000 })
-}
 
 const showToast = (severity: string, summary: string, detail: string, life: number) => {
   toast.add({ severity, summary, detail, life })
@@ -341,7 +335,7 @@ async function handleSubmit() {
       })
       users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, address)
 
-      showSuccess()
+      showToast('success', 'Success Message', 'สมัครสมาชิกสำเร็จ', 3000)
       toggleDialog()
     })
     .catch((error) => {

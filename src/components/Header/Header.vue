@@ -8,16 +8,20 @@
       </form>
 
       <div v-if="!isLoggedin" class="text-end mt-lg-0 mt-md-0 mt-sm-0 mt-2">
-        <Button label="Login" icon="pi pi-sign-in" class="me-3 p-button-secondary" @click="openModalSignIn" />
-        <Button label="Register" icon="pi pi-plus-circle" class="p-button-info" @click="goToSignUp" />
+        <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="me-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
+        <Button label="สมัครสมาชิก" icon="pi pi-plus-circle" class="p-button-raised p-button-info" @click="goToSignUp" />
       </div>
       <div v-else class="col-2">
         <div class="profile-title">
-          <i class="pi pi-user me-2" />
-          <SplitButton :label="`${user.firstname} ${user.lastname}`" :model="menu" class="p-button-text p-button-secondary mb-2" />
+          <SplitButton :model="menu" class="p-button-raised p-button-text p-button-secondary mb-2">
+            <Button>
+              <i class="pi pi-user me-2" />
+              <span class="ml-2 flex align-items-center font-bold">{{ user.firstname }} {{ user.lastname }}</span>
+            </Button>
+          </SplitButton>
         </div>
         <div class="cart">
-          <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" />
+          <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" />
         </div>
       </div>
     </div>
@@ -40,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
@@ -55,33 +59,43 @@ import UserData from '../../../projfoodApi/users'
 import HeaderLogo from './HeaderLogo.vue'
 
 const countCart = ref<string>('100')
+const isVerified = ref(true)
 
-const menu = [
-  {
-    label: 'ข้อมูลส่วนตัว',
-    icon: 'pi pi-fw pi-user',
-    // to: '/profile',
-  },
-  {
-    label: 'ข้อมูลการจัดส่ง',
-    icon: 'pi pi-fw pi-truck',
-  },
-  {
-    label: 'ประวัติการสั่งซื้อ',
-    icon: 'pi pi-fw pi-history',
-  },
-  {
-    label: 'Logout',
-    icon: 'pi pi-fw pi-power-off',
-    command: () => {
-      handleSignOut()
+const menu = computed(() => {
+  return [
+    {
+      label: 'ข้อมูลส่วนตัว',
+      icon: 'pi pi-fw pi-user',
+      disabled: isVerified.value,
+      // to: '/profile',
     },
-  },
-]
+    {
+      label: 'ข้อมูลการจัดส่ง',
+      icon: 'pi pi-fw pi-truck',
+      disabled: isVerified.value,
+    },
+    {
+      label: 'ประวัติการสั่งซื้อ',
+      icon: 'pi pi-fw pi-history',
+      disabled: isVerified.value,
+    },
+    {
+      separator: true,
+    },
+    {
+      label: 'Logout',
+      icon: 'pi pi-fw pi-power-off',
+      command: () => {
+        handleSignOut()
+      },
+    },
+  ]
+})
 
 const userData = UserData()
 const router = useRouter()
-const isLoggedin = ref(false)
+const isLoggedin = ref(true)
+
 const user = ref({
   email: '',
   firstname: '',
@@ -143,8 +157,13 @@ function handleSignOut() {
     if (user) {
       isLoggedin.value = true
       if (auth && auth.currentUser) {
-        if (!auth.currentUser.emailVerified)
+        if (!auth.currentUser.emailVerified) {
+          isVerified.value = true
           showError('แจ้งเตือนการยืนยันอีเมล', 'กรุณายืนยันอีเมลของคุณ', 600000)
+        }
+        else {
+          isVerified.value = false
+        }
         readUserData(auth.currentUser!.uid)
       }
     }
