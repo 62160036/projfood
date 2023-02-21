@@ -5,14 +5,14 @@ import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
 import { defaultConfig, plugin } from '@formkit/vue'
-import App from './App.vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import router from './router'
-
+import App from './App.vue'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import '@formkit/themes/genesis'
+import '/node_modules/primeflex/primeflex.css'
 
 // remember, each Vue plugin needs its own .use()
 // .use(router).use(plugin2)

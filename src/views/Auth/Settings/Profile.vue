@@ -7,8 +7,8 @@
       :actions="false"
       @submit="updateProfile"
     >
-      <div class="d-flex">
-        <div class="col-5 flex">
+      <div class="flex">
+        <div class="col-5">
           <div class="body-custom fw-bold mb-4">
             ข้อมูลผู้ใช้งาน
           </div>
@@ -40,7 +40,7 @@
         <div class="col-2">
           <Divider layout="vertical" />
         </div>
-        <div class="col-5 flex">
+        <div class="col-5">
           <div class="body-custom fw-bold mb-4">
             ข้อมูลส่วนบุคคล
           </div>
@@ -69,15 +69,18 @@
       </div>
     </FormKit>
   </div>
+  <Toast position="bottom-left" />>
 </template>
 
 <script setup lang="ts">
 import Divider from 'primevue/divider'
 import Button from 'primevue/button'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { getAuth } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
+import Toast from 'primevue/toast'
+import { useRouter } from 'vue-router'
 import db from '../../../main'
 import UserData from '../../../../projfoodApi/users'
 
@@ -96,6 +99,7 @@ const state = ref<ProflieState>({
   phone: '',
 })
 
+const router = useRouter()
 const toast = useToast()
 const userData = UserData()
 const submitted = ref(false)
@@ -103,7 +107,7 @@ const showToast = (severity: string, summary: string, detail: string, life: numb
   toast.add({ severity, summary, detail, life })
 }
 
-async function getUserProfile() {
+function getUserProfile() {
   const auth = getAuth()
   const user = auth.currentUser
 
@@ -115,7 +119,7 @@ async function getUserProfile() {
     // this value to authenticate with your backend server, if
     // you have one. Use User.getToken() instead.
     const uid = user.uid
-    await readUserData(uid)
+    readUserData(uid)
   }
 }
 
@@ -142,19 +146,18 @@ async function updateProfile() {
     const uid = user.uid
     await userData.updateUser(uid, state.value.email!, state.value.firstname, state.value.lastname, state.value.phone)
     showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
+    setTimeout(() => {
+      router.push({ name: 'Home' })
+    }, 1500)
   }
   else {
     showToast('error', 'บันทึกข้อมูลไม่สำเร็จ', 'บันทึกข้อมูลไม่สำเร็จ', 3000)
   }
 }
 
-onMounted(() => {
-  getUserProfile()
-})
-
-// (async () => {
-//   await getUserProfile()
-// })()
+(async () => {
+  await getUserProfile()
+})()
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,6 @@
 <template>
   <div class="logo" @click="goToHome">
-    <label class="logo-text d-flex justify-content-center align-items-center h-100">
+    <label class="logo-text flex justify-content-center align-items-center h-full">
       Logo
     </label>
   </div>

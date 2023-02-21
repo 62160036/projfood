@@ -1,14 +1,14 @@
 <template>
   <header class="p-3 text-bg-light">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+    <div class="grid align-items-center justify-content-center justify-content-start">
       <HeaderLogo class="mx-4" />
 
-      <form class="col col-lg col-md col-sm me-3 me-lg-3" role="search">
-        <input type="search" class="form-control form-control-light text-bg-light" placeholder="ค้นหาสินค้า, หมวดหมู่" aria-label="Search">
+      <form class="col col-lg col-md col-sm mr-3" role="search">
+        <input type="search" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" aria-label="Search">
       </form>
 
-      <div v-if="!isLoggedin" class="text-end mt-lg-0 mt-md-0 mt-sm-0 mt-2">
-        <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="me-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
+      <div v-if="!isLoggedin" class="text-right mt-2">
+        <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
         <Button label="สมัครสมาชิก" icon="pi pi-plus-circle" class="p-button-raised p-button-info" @click="goToSignUp" />
       </div>
       <div v-else class="col-2">
@@ -26,18 +26,7 @@
       </div>
     </div>
   </header>
-  <header class="p-1 text-bg-dark">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start ms-5">
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">ผักผลไม้</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">เนื้อสัตว์แช่แข็ง</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">อาหารทะเลแช่แข็ง</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">อาหารสำเร็จรูป</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">สินค้าแนะนำ</a></li>
-      </ul>
-    </div>
-  </header>
+  <TabMenu v-model="activeIndex" :model="items" />
 
   <ModalSignIn ref="modalSignIn" />
   <Toast position="bottom-left" />
@@ -52,11 +41,46 @@ import { collection, getDocs, query, where } from '@firebase/firestore'
 import { useToast } from 'primevue/usetoast'
 import Toast from 'primevue/toast'
 import SplitButton from 'primevue/splitbutton'
+import TabMenu from 'primevue/tabmenu'
 import ModalSignIn from '../../views/Auth/ModalSignIn.vue'
 import db from '../../main'
 
 import UserData from '../../../projfoodApi/users'
 import HeaderLogo from './HeaderLogo.vue'
+
+const activeIndex = ref(0)
+const items = ref([
+  {
+    label: 'Home',
+    icon: 'pi pi-fw pi-home',
+    to: '/',
+  },
+  {
+    label: 'ผักผลไม้',
+    icon: 'pi pi-fw pi-home',
+    to: '/calendar',
+  },
+  {
+    label: 'เนื้อสัตว์แช่แข็ง',
+    icon: 'pi pi-fw pi-pencil',
+    to: '/edit',
+  },
+  {
+    label: 'อาหารทะเลแช่แข็ง',
+    icon: 'pi pi-fw pi-file',
+    to: '/documentation',
+  },
+  {
+    label: 'อาหารสำเร็จรูป',
+    icon: 'pi pi-fw pi-cog',
+    // to: '/settings',
+  },
+  {
+    label: 'สินค้าแนะนำ',
+    icon: 'pi pi-fw pi-cog',
+    // to: '/settings',
+  },
+])
 
 const countCart = ref<string>('100')
 const isVerified = ref(true)

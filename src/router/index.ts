@@ -1,4 +1,4 @@
-import { getAuth } from 'firebase/auth'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -10,11 +10,6 @@ const router = createRouter({
       component: () => import('../views/Home.vue'),
     },
     {
-      path: '/about',
-      name: 'About',
-      component: () => import('../views/About.vue'),
-    },
-    {
       path: '/sign-up',
       name: 'SignUp',
       component: () => import('../views/Auth/index').then(x => x.SignUp),
@@ -23,6 +18,7 @@ const router = createRouter({
       path: '/settings',
       name: 'Settings',
       component: () => import('../views/Auth/Settings/index').then(x => x.Settings),
+      meta: { requiresAuth: true },
       children: [
         {
           path: 'profile',
@@ -47,18 +43,26 @@ const router = createRouter({
       name: 'NotFound',
       component: () => import('../views/NotFound.vue'),
     },
+    // No Permission
+    {
+      path: '/no-permission',
+      name: 'NoPermission',
+      component: () => import('../views/NoPermission.vue'),
+    },
+
   ],
 })
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (getAuth().currentUser) {
-      next()
-    }
-    else {
-      alert('You are not logged in!')
-      next({ name: 'Home' })
-    }
+    const auth = getAuth()
+    onAuthStateChanged(auth, (user) => {
+      if (user)
+        next()
+
+      else
+        next({ name: 'NoPermission' })
+    })
   }
   else {
     next()

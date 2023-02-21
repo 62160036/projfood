@@ -3,13 +3,13 @@
   <Card class="card-tab mt-4">
     <template v-slot:title>
       <div class="card-title">
-        404 Not Found
+        No Permission
       </div>
     </template>
     <template v-slot:content>
       <div class="tabmenudemo-content">
-        <h1>404 Not Found</h1>
-        <p>ไม่พบหน้าที่คุณต้องการ</p>
+        <h1>No Permission</h1>
+        <p>ไม่มีสิทธิ์เข้าถึงหน้านี้</p>
       </div>
     </template>
   </Card>
