@@ -3,7 +3,7 @@ import db from '../src/main'
 
 export default function UserData() {
   return {
-    async writeUserData(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string, sub_district: string, district: string, province: string, zip: string) {
+    async writeUserData(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
       try {
         const docRef = {
           userId,
@@ -12,10 +12,6 @@ export default function UserData() {
           lastname,
           phone,
           address,
-          sub_district,
-          district,
-          province,
-          zip,
         }
         await setDoc(doc(db, 'users', `${userId}`), docRef)
         console.log('Document written with ID: ', `${userId}`)

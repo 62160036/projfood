@@ -36,6 +36,7 @@
                 <label for="email">อีเมล<span class="text-danger">*</span></label>
                 <FormKit
                   v-model="state.email"
+                  help="กดปุ่มไอคอนเพื่อตรวจสอบอว่ามีอีเมลนี้ในระบบหรือไม่"
                   type="email"
                   validation="required|email"
                   :validationMessages="{
@@ -43,7 +44,9 @@
                     email: 'กรุณากรอกอีเมลให้ถูกต้อง',
                   }"
                   prefixIcon="email"
+                  suffixIcon="check"
                   validationVisibility="dirty"
+                  @suffixIconClick="checkDuplicateEmail"
                 />
               </div>
               <div class="col mb-2">
@@ -123,71 +126,73 @@
                 />
               </div>
             </div>
-            <div class="row">
-              <div class="col mb-2">
-                <label for="address">ที่อยู่<span class="text-danger">*</span></label>
-                <FormKit
-                  v-model="state.address"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกที่อยู่',
-                  }"
-                  prefixIcon="text"
-                />
+            <div v-for="item, index in state.address" :key="index" class="row">
+              <div class="row">
+                <div class="col mb-2">
+                  <label for="address">ที่อยู่<span class="text-danger">*</span></label>
+                  <FormKit
+                    v-model="item.addressInfo"
+                    type="text"
+                    validation="required"
+                    :validationMessages="{
+                      required: 'จำเป็นต้องกรอกที่อยู่',
+                    }"
+                    prefixIcon="text"
+                  />
+                </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col mb-2">
-                <label for="sub_district">ตำบล<span class="text-danger">*</span></label>
-                <FormKit
-                  v-model="state.sub_district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกตำบล',
-                  }"
-                  prefixIcon="text"
-                />
+              <div class="row">
+                <div class="col mb-2">
+                  <label for="sub_district">ตำบล<span class="text-danger">*</span></label>
+                  <FormKit
+                    v-model="item.sub_district"
+                    type="text"
+                    validation="required"
+                    :validationMessages="{
+                      required: 'จำเป็นต้องกรอกตำบล',
+                    }"
+                    prefixIcon="text"
+                  />
+                </div>
+                <div class="col mb-2">
+                  <label for="district">อำเภอ<span class="text-danger">*</span></label>
+                  <FormKit
+                    v-model="item.district"
+                    type="text"
+                    validation="required"
+                    :validationMessages="{
+                      required: 'จำเป็นต้องกรอกอำเภอ',
+                    }"
+                    prefixIcon="text"
+                  />
+                </div>
               </div>
-              <div class="col mb-2">
-                <label for="district">อำเภอ<span class="text-danger">*</span></label>
-                <FormKit
-                  v-model="state.district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกอำเภอ',
-                  }"
-                  prefixIcon="text"
-                />
-              </div>
-            </div>
-            <div class="row">
-              <div class="col mb-2">
-                <label for="province">จังหวัด<span class="text-danger">*</span></label>
-                <FormKit
-                  v-model="state.province"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกจังหวัด',
-                  }"
-                  prefixIcon="text"
-                />
-              </div>
-              <div class="col mb-2">
-                <label for="zip">รหัสไปรษณีย์<span class="text-danger">*</span></label>
-                <FormKit
-                  v-model="state.zip"
-                  type="text"
-                  validation="required|matches:/[0-9]/"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกรหัสไปรษณีย์',
-                    matches: 'รหัสไปรษณีย์ต้องเป็นตัวเลขเท่านั้น',
-                  }"
-                  prefixIcon="text"
-                />
+              <div class="row">
+                <div class="col mb-2">
+                  <label for="province">จังหวัด<span class="text-danger">*</span></label>
+                  <FormKit
+                    v-model="item.province"
+                    type="text"
+                    validation="required"
+                    :validationMessages="{
+                      required: 'จำเป็นต้องกรอกจังหวัด',
+                    }"
+                    prefixIcon="text"
+                  />
+                </div>
+                <div class="col mb-2">
+                  <label for="zip">รหัสไปรษณีย์<span class="text-danger">*</span></label>
+                  <FormKit
+                    v-model="item.zip"
+                    type="text"
+                    validation="required|matches:/[0-9]/"
+                    :validationMessages="{
+                      required: 'จำเป็นต้องกรอกรหัสไปรษณีย์',
+                      matches: 'รหัสไปรษณีย์ต้องเป็นตัวเลขเท่านั้น',
+                    }"
+                    prefixIcon="text"
+                  />
+                </div>
               </div>
             </div>
             <Button type="submit" label="สมัครสมาชิก" class="mt-2 p-button-secondary" />
@@ -208,8 +213,10 @@ import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth'
+import { collection, getDocs, query, where } from '@firebase/firestore'
 import Header from '../../components/Header/Header.vue'
 import UserData from '../../../projfoodApi/users'
+import db from '../../main'
 
 interface RegisterState {
   email: string
@@ -218,7 +225,11 @@ interface RegisterState {
   firstname: string
   lastname: string
   phone: string
-  address: string
+  address: Address[]
+}
+
+interface Address {
+  addressInfo: string
   sub_district: string
   district: string
   province: string
@@ -234,11 +245,15 @@ const state = reactive<RegisterState>({
   firstname: '',
   lastname: '',
   phone: '',
-  address: '',
-  sub_district: '',
-  district: '',
-  province: '',
-  zip: '',
+  address: [
+    {
+      addressInfo: '',
+      sub_district: '',
+      district: '',
+      province: '',
+      zip: '',
+    },
+  ],
 })
 
 const submitted = ref(false)
@@ -251,11 +266,15 @@ const resetForm = () => {
   state.firstname = ''
   state.lastname = ''
   state.phone = ''
-  state.address = ''
-  state.sub_district = ''
-  state.district = ''
-  state.province = ''
-  state.zip = ''
+  state.address = [
+    {
+      addressInfo: '',
+      sub_district: '',
+      district: '',
+      province: '',
+      zip: '',
+    },
+  ]
   submitted.value = false
 }
 
@@ -268,9 +287,31 @@ const showError = () => {
   toast.add({ severity: 'error', summary: 'Error Message', detail: 'Please fill in the required fields', life: 3000 })
 }
 
+const showToast = (severity: string, summary: string, detail: string, life: number) => {
+  toast.add({ severity, summary, detail, life })
+}
+
 const handleIconClick = (node: any) => {
   node.props.suffixIcon = node.props.suffixIcon === 'eye' ? 'eyeClosed' : 'eye'
   node.props.type = node.props.type === 'password' ? 'text' : 'password'
+}
+
+const checkDuplicateEmail = async (node: any) => {
+  const q = query(collection(db, 'users'), where('email', '==', state.email))
+  const email = ref('')
+  const querySnapshot = await getDocs(q)
+  querySnapshot.forEach((doc) => {
+    email.value = doc.data().email
+  })
+
+  if (state.email === email.value && state.email !== '') {
+    node.props.suffixIcon = node.props.suffixIcon === 'check' ? 'check' : 'check'
+    showToast('error', 'Error Message', 'อีเมลนี้มีผู้ใช้งานแล้ว', 3000)
+  }
+  else if (state.email !== email.value && state.email !== '') {
+    node.props.suffixIcon = node.props.suffixIcon === 'check' ? 'check' : 'check'
+    showToast('success', 'Success Message', 'อีเมลนี้สามารถใช้งานได้', 3000)
+  }
 }
 
 const toggleDialog = () => {
@@ -285,18 +326,26 @@ const toggleDialog = () => {
 async function handleSubmit() {
   // Let's pretend this is an ajax request:
   submitted.value = true
-
-  createUserWithEmailAndPassword(getAuth(), state.email, state.password)
+  const auth = getAuth()
+  createUserWithEmailAndPassword(auth, state.email, state.password)
     .then((data) => {
       sendEmailVerification(data.user)
-      users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, state.address, state.sub_district, state.district, state.province, state.zip)
+      const address: any = state.address.map((item) => {
+        return {
+          addressInfo: item.addressInfo,
+          sub_district: item.sub_district,
+          district: item.district,
+          province: item.province,
+          zip: item.zip,
+        }
+      })
+      users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, address)
 
       showSuccess()
       toggleDialog()
     })
     .catch((error) => {
-      console.log('Error creating user account: ', error.code)
-      alert(error.message)
+      showToast('error', error.code, error.message, 3000)
     })
 }
 </script>

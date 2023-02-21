@@ -86,11 +86,11 @@ const resetForm = () => {
 const displayModal = ref(false)
 
 const toast = useToast()
-const showSuccess = () => {
-  toast.add({ severity: 'success', summary: 'Success Message', detail: 'เข้าสู่ระบบสำเร็จ', life: 3000 })
+const showSuccess = (detail: string) => {
+  toast.add({ severity: 'success', summary: 'Success Message', detail, life: 3000 })
 }
-const showError = (detail: string) => {
-  toast.add({ severity: 'error', summary: 'Error Message', detail, life: 3000 })
+const showError = (summary: string, detail: string, life: number) => {
+  toast.add({ severity: 'error', summary, detail, life })
 }
 
 const handleSubmit = () => {
@@ -98,8 +98,8 @@ const handleSubmit = () => {
   const auth = getAuth()
 
   signInWithEmailAndPassword(auth, state.email, state.password)
-    .then((data) => {
-      showSuccess()
+    .then(() => {
+      showSuccess('เข้าสู่ระบบสำเร็จ')
       resetForm()
       displayModal.value = false
       router.push('/')
@@ -107,8 +107,7 @@ const handleSubmit = () => {
     .catch((error) => {
       const errorCode = error.code
       const errorMessage = error.message
-      console.log(errorCode, errorMessage)
-      showError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      showError(errorCode, errorMessage, 3000)
     })
 }
 
