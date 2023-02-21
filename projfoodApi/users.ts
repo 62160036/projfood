@@ -20,13 +20,16 @@ export default function UserData() {
         console.error('Error adding document: ', e)
       }
     },
-    async updateUser(userId: string, firstname: string) {
+    async updateUser(userId: string, email: string, firstname: string, lastname: string, phone: string) {
       try {
         const userRef = doc(db, 'users', `${userId}`)
 
         // Set the "capital" field of the city 'DC'
         await updateDoc(userRef, {
+          email,
           firstname,
+          lastname,
+          phone,
         })
       }
       catch (e) {

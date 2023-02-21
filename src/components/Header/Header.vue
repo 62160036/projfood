@@ -67,17 +67,19 @@ const menu = computed(() => {
       label: 'ข้อมูลส่วนตัว',
       icon: 'pi pi-fw pi-user',
       disabled: isVerified.value,
-      // to: '/profile',
+      to: '/settings/profile',
     },
     {
       label: 'ข้อมูลการจัดส่ง',
       icon: 'pi pi-fw pi-truck',
       disabled: isVerified.value,
+      to: '/settings/shipping',
     },
     {
       label: 'ประวัติการสั่งซื้อ',
       icon: 'pi pi-fw pi-history',
       disabled: isVerified.value,
+      to: '/settings/orderHistory',
     },
     {
       separator: true,

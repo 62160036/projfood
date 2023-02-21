@@ -1,0 +1,173 @@
+<template>
+  <div class="m-2 mx-4">
+    <FormKit
+      type="form"
+      :formClass="submitted ? 'hide' : 'show'"
+      submitLabel="สมัครสมาชิก"
+      :actions="false"
+      @submit="updateProfile"
+    >
+      <div class="d-flex">
+        <div class="col-5 flex">
+          <div class="body-custom fw-bold mb-4">
+            ข้อมูลผู้ใช้งาน
+          </div>
+          <div class="mb-2">
+            <label for="email">อีเมล</label>
+            <FormKit
+              v-model="state.email"
+              type="email"
+              prefixIcon="email"
+              validationVisibility="dirty"
+              disabled
+            />
+          </div>
+          <div class="mb-2">
+            <label for="phone">เบอร์โทรศัพท์</label>
+            <FormKit
+              v-model="state.phone"
+              type="tel"
+              placeholder="xxx-xxx-xxxx"
+              validation="matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
+              :validationMessages="{
+                matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
+              }"
+              prefixIcon="telephone"
+              validationVisibility="dirty"
+            />
+          </div>
+        </div>
+        <div class="col-2">
+          <Divider layout="vertical" />
+        </div>
+        <div class="col-5 flex">
+          <div class="body-custom fw-bold mb-4">
+            ข้อมูลส่วนบุคคล
+          </div>
+          <div class="row">
+            <div class="col mb-2">
+              <label for="firstname">ชื่อ</label>
+              <FormKit
+                v-model="state.firstname"
+                type="text"
+                prefixIcon="text"
+              />
+            </div>
+            <div class="col mb-2">
+              <label for="lastname">นามสกุล</label>
+              <FormKit
+                v-model="state.lastname"
+                type="text"
+                prefixIcon="text"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="button-custom">
+        <Button type="submit" label="บันทึกการเปลี่่ยนแปลง" icon="pi pi-user-edit" class="p-button-success" />
+      </div>
+    </FormKit>
+  </div>
+</template>
+
+<script setup lang="ts">
+import Divider from 'primevue/divider'
+import Button from 'primevue/button'
+import { onMounted, ref } from 'vue'
+import { getAuth } from 'firebase/auth'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { useToast } from 'primevue/usetoast'
+import db from '../../../main'
+import UserData from '../../../../projfoodApi/users'
+
+interface ProflieState {
+  email: string | null
+  firstname: string
+  lastname: string
+  phone: string
+
+}
+
+const state = ref<ProflieState>({
+  email: '',
+  firstname: '',
+  lastname: '',
+  phone: '',
+})
+
+const toast = useToast()
+const userData = UserData()
+const submitted = ref(false)
+const showToast = (severity: string, summary: string, detail: string, life: number) => {
+  toast.add({ severity, summary, detail, life })
+}
+
+async function getUserProfile() {
+  const auth = getAuth()
+  const user = auth.currentUser
+
+  if (user !== null) {
+  // The user object has basic properties such as display name, email, etc.
+    const email = user.email
+    state.value.email = email
+    // The user's ID, unique to the Firebase project. Do NOT use
+    // this value to authenticate with your backend server, if
+    // you have one. Use User.getToken() instead.
+    const uid = user.uid
+    await readUserData(uid)
+  }
+}
+
+async function readUserData(userId: string) {
+  const q = query(collection(db, 'users'), where('userId', '==', userId))
+
+  const querySnapshot = await getDocs(q)
+  querySnapshot.forEach((doc) => {
+    state.value = {
+      email: doc.data().email,
+      firstname: doc.data().firstname,
+      lastname: doc.data().lastname,
+      phone: doc.data().phone,
+    }
+  })
+}
+
+async function updateProfile() {
+  submitted.value = true
+  const auth = getAuth()
+  const user = auth.currentUser
+
+  if (user !== null) {
+    const uid = user.uid
+    await userData.updateUser(uid, state.value.email!, state.value.firstname, state.value.lastname, state.value.phone)
+    showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
+  }
+  else {
+    showToast('error', 'บันทึกข้อมูลไม่สำเร็จ', 'บันทึกข้อมูลไม่สำเร็จ', 3000)
+  }
+}
+
+onMounted(() => {
+  getUserProfile()
+})
+
+// (async () => {
+//   await getUserProfile()
+// })()
+</script>
+
+<style lang="scss" scoped>
+.body-custom {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.button-custom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+</style>

@@ -17,8 +17,35 @@ const router = createRouter({
     {
       path: '/sign-up',
       name: 'SignUp',
-      component: () => import('../views/Auth/SignUp.vue'),
-
+      component: () => import('../views/Auth/index').then(x => x.SignUp),
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: () => import('../views/Auth/Settings/index').then(x => x.Settings),
+      children: [
+        {
+          path: 'profile',
+          name: 'Profile',
+          component: () => import('../views/Auth/Settings/index').then(x => x.Profile),
+        },
+        {
+          path: 'shipping',
+          name: 'Shipping',
+          component: () => import('../views/Auth/Settings/index').then(x => x.Shipping),
+        },
+        {
+          path: 'orderHistory',
+          name: 'OrderHistory',
+          component: () => import('../views/Auth/Settings/index').then(x => x.orderHistory),
+        },
+      ],
+    },
+    // 404 page
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/NotFound.vue'),
     },
   ],
 })
