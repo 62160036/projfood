@@ -57,27 +57,27 @@ const items = ref([
   },
   {
     label: 'ผักผลไม้',
-    icon: 'pi pi-fw pi-home',
+    // icon: 'pi pi-fw pi-home',
     to: '/calendar',
   },
   {
     label: 'เนื้อสัตว์แช่แข็ง',
-    icon: 'pi pi-fw pi-pencil',
+    // icon: 'pi pi-fw pi-pencil',
     to: '/edit',
   },
   {
     label: 'อาหารทะเลแช่แข็ง',
-    icon: 'pi pi-fw pi-file',
+    // icon: 'pi pi-fw pi-file',
     to: '/documentation',
   },
   {
     label: 'อาหารสำเร็จรูป',
-    icon: 'pi pi-fw pi-cog',
+    // icon: 'pi pi-fw pi-cog',
     // to: '/settings',
   },
   {
     label: 'สินค้าแนะนำ',
-    icon: 'pi pi-fw pi-cog',
+    // icon: 'pi pi-fw pi-cog',
     // to: '/settings',
   },
 ])

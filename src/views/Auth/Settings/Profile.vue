@@ -17,7 +17,6 @@
             <FormKit
               v-model="state.email"
               type="email"
-              prefixIcon="email"
               validationVisibility="dirty"
               disabled
             />
@@ -32,7 +31,7 @@
               :validationMessages="{
                 matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
               }"
-              prefixIcon="telephone"
+
               validationVisibility="dirty"
             />
           </div>
@@ -50,7 +49,6 @@
               <FormKit
                 v-model="state.firstname"
                 type="text"
-                prefixIcon="text"
               />
             </div>
             <div class="col mb-2">
@@ -58,7 +56,6 @@
               <FormKit
                 v-model="state.lastname"
                 type="text"
-                prefixIcon="text"
               />
             </div>
           </div>
@@ -147,7 +144,7 @@ async function updateProfile() {
     await userData.updateUser(uid, state.value.email!, state.value.firstname, state.value.lastname, state.value.phone)
     showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
     setTimeout(() => {
-      router.push({ name: 'Home' })
+      router.go(0)
     }, 1500)
   }
   else {

@@ -24,14 +24,13 @@ import '/node_modules/primeflex/primeflex.css'
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: 'AIzaSyCV0npRonknzET7r69-kMKU11xIBqhNHOY',
-  authDomain: 'projfood-3956f.firebaseapp.com',
-  databaseURL: 'https://projfood-3956f-default-rtdb.asia-southeast1.firebasedatabase.app',
-  projectId: 'projfood-3956f',
-  storageBucket: 'projfood-3956f.appspot.com',
-  messagingSenderId: '1054434030382',
-  appId: '1:1054434030382:web:e53cf2118eadeb4dc880bf',
-  measurementId: 'G-FERMDRQPTJ',
+  apiKey: 'AIzaSyC22_OTiG3QbF8Sf4VKLOhCMnwq8WLWGH4',
+  authDomain: 'prjfood-dc319.firebaseapp.com',
+  projectId: 'prjfood-dc319',
+  storageBucket: 'prjfood-dc319.appspot.com',
+  messagingSenderId: '457362363488',
+  appId: '1:457362363488:web:547d9bf7d0f434330d5f05',
+  measurementId: 'G-Y9NQNWKET2',
 }
 
 // Initialize Firebase

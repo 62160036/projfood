@@ -1,4 +1,4 @@
-import { doc, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
 import db from '../src/main'
 
 export default function UserData() {
@@ -14,11 +14,15 @@ export default function UserData() {
           address,
         }
         await setDoc(doc(db, 'users', `${userId}`), docRef)
-        console.log('Document written with ID: ', `${userId}`)
       }
       catch (e) {
-        console.error('Error adding document: ', e)
+        return e
       }
+    },
+    async getAllUsers() {
+      const userCol = collection(db, 'users')
+      const userSnapshot = await getDocs(userCol)
+      return userSnapshot.docs.map(doc => doc.data())
     },
     async updateUser(userId: string, email: string, firstname: string, lastname: string, phone: string) {
       try {
@@ -33,7 +37,7 @@ export default function UserData() {
         })
       }
       catch (e) {
-        console.error('Error adding document: ', e)
+        return e
       }
     },
 

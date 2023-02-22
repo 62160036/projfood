@@ -131,7 +131,7 @@
                 <div class="col mb-2">
                   <label for="address">ที่อยู่<span class="text-danger">*</span></label>
                   <FormKit
-                    v-model="item.addressInfo"
+                    v-model="item.address_info"
                     type="text"
                     validation="required"
                     :validationMessages="{
@@ -229,7 +229,7 @@ interface RegisterState {
 }
 
 interface Address {
-  addressInfo: string
+  address_info: string
   sub_district: string
   district: string
   province: string
@@ -247,7 +247,7 @@ const state = reactive<RegisterState>({
   phone: '',
   address: [
     {
-      addressInfo: '',
+      address_info: '',
       sub_district: '',
       district: '',
       province: '',
@@ -268,7 +268,7 @@ const resetForm = () => {
   state.phone = ''
   state.address = [
     {
-      addressInfo: '',
+      address_info: '',
       sub_district: '',
       district: '',
       province: '',
@@ -326,7 +326,7 @@ async function handleSubmit() {
       sendEmailVerification(data.user)
       const address: any = state.address.map((item) => {
         return {
-          addressInfo: item.addressInfo,
+          address_info: item.address_info,
           sub_district: item.sub_district,
           district: item.district,
           province: item.province,
