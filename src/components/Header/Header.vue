@@ -1,32 +1,34 @@
 <template>
-  <header class="p-3 text-bg-light">
-    <div class="grid align-items-center justify-content-center justify-content-start">
-      <HeaderLogo class="mx-4" />
+  <div class="topbar">
+    <div class="text-bg-light">
+      <div class="grid align-items-center justify-content-center justify-content-start mr-2 ml-2 mb-2">
+        <HeaderLogo class="m-4" />
 
-      <form class="col col-lg col-md col-sm mr-3" role="search">
-        <input type="search" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" aria-label="Search">
-      </form>
+        <form class="col-6 mr-3 mt-2" role="search">
+          <input type="search" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" aria-label="Search">
+        </form>
 
-      <div v-if="!isLoggedin" class="text-right mt-2">
-        <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
-        <Button label="สมัครสมาชิก" icon="pi pi-plus-circle" class="p-button-raised p-button-info" @click="goToSignUp" />
-      </div>
-      <div v-else class="col-2">
-        <div class="profile-title">
-          <SplitButton :model="menu" class="p-button-raised p-button-text p-button-secondary mb-2">
-            <Button>
-              <i class="pi pi-user me-2" />
-              <span class="ml-2 flex align-items-center font-bold">{{ user.firstname }} {{ user.lastname }}</span>
-            </Button>
-          </SplitButton>
+        <div v-if="!isLoggedin" class="text-right col-md-12 mt-2" :class="{ 'col-sm': 'col-sm' }">
+          <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
+          <Button label="สมัครสมาชิก" icon="pi pi-plus-circle" class="p-button-raised p-button-info" @click="goToSignUp" />
         </div>
-        <div class="cart">
-          <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" />
+        <div v-else class="flex flex-wrap">
+          <div class="col mt-3">
+            <SplitButton :model="menu" class="p-button-raised p-button-text p-button-secondary mb-2">
+              <Button>
+                <i class="pi pi-user me-2" />
+                <span class="ml-2 flex align-items-center font-bold">{{ user.firstname }} {{ user.lastname }}</span>
+              </Button>
+            </SplitButton>
+          </div>
+          <div class="flex align-items-center justify-content-center">
+            <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" />
+          </div>
         </div>
       </div>
     </div>
-  </header>
-  <TabMenu v-model="activeIndex" :model="items" />
+    <Menubar :model="items" />
+  </div>
 
   <ModalSignIn ref="modalSignIn" />
   <Toast position="bottom-left" />
@@ -35,20 +37,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
 import { collection, getDocs, query, where } from '@firebase/firestore'
 import { useToast } from 'primevue/usetoast'
-import Toast from 'primevue/toast'
-import SplitButton from 'primevue/splitbutton'
-import TabMenu from 'primevue/tabmenu'
 import ModalSignIn from '../../views/Auth/ModalSignIn.vue'
 import db from '../../main'
 
 import UserData from '../../../projfoodApi/users'
 import HeaderLogo from './HeaderLogo.vue'
 
-const activeIndex = ref(0)
 const items = ref([
   {
     label: 'Home',
@@ -104,6 +101,12 @@ const menu = computed(() => {
       icon: 'pi pi-fw pi-history',
       disabled: isVerified.value,
       to: '/settings/orderHistory',
+    },
+    {
+      label: 'Dashboard',
+      icon: 'pi pi-fw pi-chart-bar',
+      disabled: isVerified.value,
+      to: '/dashboard',
     },
     {
       separator: true,
@@ -166,8 +169,7 @@ function handleSignOut() {
     router.push('/')
     showSuccess()
   }).catch((error) => {
-    console.log(error)
-    showError('แจ้งเตือนการออกจากระบบไม่สำเร็จ', 'ออกจากระบบไม่สำเร็จ', 3000)
+    showError('แจ้งเตือนการออกจากระบบไม่สำเร็จ', error, 3000)
   })
 }
 
@@ -200,17 +202,16 @@ function handleSignOut() {
 </script>
 
 <style lang="scss" scoped>
-.profile-title {
-  font-size: 1.2rem;
-  font-weight: 500;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-}
-.cart {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.topbar {
+    position: fixed;
+    height: 200px;
+    z-index: 997;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 2rem;
+    background-color: var(--surface-card);
+    transition: left 0.2s;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.02), 0px 0px 2px rgba(0, 0, 0, 0.05), 0px 1px 4px rgba(0, 0, 0, 0.08);
 }
 </style>

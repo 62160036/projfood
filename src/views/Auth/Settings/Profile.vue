@@ -9,10 +9,10 @@
     >
       <div class="flex">
         <div class="col-5">
-          <div class="body-custom fw-bold mb-4">
+          <div class="flex justify-content-center align-items-center font-bold mb-4">
             ข้อมูลผู้ใช้งาน
           </div>
-          <div class="mb-2">
+          <div class="field">
             <label for="email">อีเมล</label>
             <FormKit
               v-model="state.email"
@@ -21,7 +21,7 @@
               disabled
             />
           </div>
-          <div class="mb-2">
+          <div class="field">
             <label for="phone">เบอร์โทรศัพท์</label>
             <FormKit
               v-model="state.phone"
@@ -31,7 +31,6 @@
               :validationMessages="{
                 matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
               }"
-
               validationVisibility="dirty"
             />
           </div>
@@ -40,18 +39,18 @@
           <Divider layout="vertical" />
         </div>
         <div class="col-5">
-          <div class="body-custom fw-bold mb-4">
+          <div class="flex justify-content-center align-items-center font-bold mb-4">
             ข้อมูลส่วนบุคคล
           </div>
-          <div class="row">
-            <div class="col mb-2">
+          <div class="grid">
+            <div class="field col">
               <label for="firstname">ชื่อ</label>
               <FormKit
                 v-model="state.firstname"
                 type="text"
               />
             </div>
-            <div class="col mb-2">
+            <div class="field col">
               <label for="lastname">นามสกุล</label>
               <FormKit
                 v-model="state.lastname"
@@ -61,22 +60,19 @@
           </div>
         </div>
       </div>
-      <div class="button-custom">
+      <div class="flex justify-content-center align-items-center font-bold mt-1rem">
         <Button type="submit" label="บันทึกการเปลี่่ยนแปลง" icon="pi pi-user-edit" class="p-button-success" />
       </div>
     </FormKit>
   </div>
-  <Toast position="bottom-left" />>
+  <Toast position="bottom-left" />
 </template>
 
 <script setup lang="ts">
-import Divider from 'primevue/divider'
-import Button from 'primevue/button'
 import { ref } from 'vue'
 import { getAuth } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
-import Toast from 'primevue/toast'
 import { useRouter } from 'vue-router'
 import db from '../../../main'
 import UserData from '../../../../projfoodApi/users'
@@ -158,16 +154,5 @@ async function updateProfile() {
 </script>
 
 <style lang="scss" scoped>
-.body-custom {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.button-custom {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-}
+
 </style>

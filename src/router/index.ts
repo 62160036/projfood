@@ -10,6 +10,11 @@ const router = createRouter({
       component: () => import('../views/Home.vue'),
     },
     {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: () => import('@/views/Dashboard.vue'),
+    },
+    {
       path: '/sign-up',
       name: 'SignUp',
       component: () => import('../views/Auth/index').then(x => x.SignUp),
@@ -45,19 +50,19 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('../views/NotFound.vue'),
+      component: () => import('../views/pages/NotFound.vue'),
     },
     // No Permission
     {
-      path: '/no-permission',
-      name: 'NoPermission',
-      component: () => import('../views/NoPermission.vue'),
+      path: '/access-denied',
+      name: 'accessDenied',
+      component: () => import('../views/pages/Access.vue'),
     },
 
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const nearestWithTitle = to.matched.slice().reverse().find(r => r.meta && r.meta.title)
 
   if (nearestWithTitle) {
@@ -78,7 +83,7 @@ router.beforeEach((to, from, next) => {
         next()
 
       else
-        next({ name: 'NoPermission' })
+        next({ name: 'accessDenied' })
     })
   }
   else {

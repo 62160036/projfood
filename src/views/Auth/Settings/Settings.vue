@@ -2,7 +2,7 @@
   <Header />
   <Card class="card-tab mt-4">
     <template v-slot:title>
-      <i :class="items[active].icon" class="me-2" />{{ items[active].label }}
+      <i :class="items[active].icon" class="mr-2" />{{ items[active].label }}
     </template>
     <template v-slot:content>
       <TabMenu v-model:activeIndex="active" :model="items" />
@@ -12,8 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import TabMenu from 'primevue/tabmenu'
-import Card from 'primevue/card'
 import { ref } from 'vue'
 import { Header } from '../../../components/Header'
 
@@ -46,6 +44,5 @@ const items = ref([
     margin: 0 auto;
     width: 100%;
     max-width: 1000px;
-
 }
 </style>

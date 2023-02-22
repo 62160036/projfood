@@ -1,24 +1,24 @@
 <template>
-  <Carousel :value="products" :numVisible="3" :numScroll="1" :responsiveOptions="responsiveOptions" class="custom-carousel" :circular="true" :autoplayInterval="3000">
-    <template v-slot:item="slotProps">
+  <Carousel :value="products" :numVisible="3" :numScroll="1" :circular="true" :autoplayInterval="3000" :responsiveOptions="carouselResponsiveOptions">
+    <template v-slot:item="product">
       <div class="product-item">
         <div class="product-item-content">
           <div class="mb-3">
-            <img src="https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png" :alt="slotProps.data.name" class="product-image">
+            <img :src="`/demo/images/product/${product.data.image}`" :alt="product.data.name" class="product-image">
           </div>
           <div>
             <h4 class="mb-1">
-              {{ slotProps.data.name }}
+              {{ product.data.name }}
             </h4>
             <h6 class="mt-0 mb-3">
-              ${{ slotProps.data.price }}
+              ${{ product.data.price }}
             </h6>
-            <span :class="`p-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{ slotProps.data.inventoryStatus }}</span>
-            <!-- <div class="car-buttons mt-5">
-              <Button icon="pi pi-search" class="p-button p-button-rounded me-2" />
-              <Button icon="pi pi-star-fill" class="p-button-success p-button-rounded me-2" />
-              <Button icon="pi pi-cog" class="p-button-help p-button-rounded" />
-            </div> -->
+            <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">{{ product.data.inventoryStatus }}</span>
+            <div class="car-buttons mt-5">
+              <Button type="button" class="p-button p-button-rounded mr-2" icon="pi pi-search" />
+              <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
+              <Button type="button" class="p-button-help p-button-rounded" icon="pi pi-cog" />
+            </div>
           </div>
         </div>
       </div>
@@ -27,59 +27,38 @@
 </template>
 
 <script setup lang="ts">
-import Carousel from 'primevue/carousel'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import ProductService from '@/service/ProductService'
+import PhotoService from '@/service/PhotoService'
 
-const products = ref([
-  {
-    name: 'Product 1',
-    price: 100,
-    inventoryStatus: 'INSTOCK',
-  },
-  {
-    name: 'Product 2',
-    price: 100,
-    inventoryStatus: 'LOWSTOCK',
-  },
-  {
-    name: 'Product 3',
-    price: 100,
-    inventoryStatus: 'INSTOCK',
-  },
-  {
-    name: 'Product 4',
-    price: 100,
-    inventoryStatus: 'OUTOFSTOCK',
-  },
-  {
-    name: 'Product 5',
-    price: 100,
-    inventoryStatus: 'INSTOCK',
-  },
-  {
-    name: 'Product 6',
-    price: 100,
-    inventoryStatus: 'LOWSTOCK',
-  },
-])
-
-const responsiveOptions = ref([
+const carouselResponsiveOptions = ref([
   {
     breakpoint: '1024px',
     numVisible: 3,
     numScroll: 3,
   },
   {
-    breakpoint: '600px',
+    breakpoint: '768px',
     numVisible: 2,
     numScroll: 2,
   },
   {
-    breakpoint: '480px',
+    breakpoint: '560px',
     numVisible: 1,
     numScroll: 1,
   },
 ])
+
+const products = ref([])
+const images = ref([])
+
+const productService = new ProductService()
+const photoService = new PhotoService()
+
+onMounted(() => {
+  productService.getProductsSmall().then((data: never[]) => (products.value = data))
+  photoService.getImages().then((data: any) => (images.value = data))
+})
 </script>
 
 <style lang="scss" scoped>

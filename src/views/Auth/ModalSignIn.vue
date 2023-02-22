@@ -1,10 +1,10 @@
 <template>
-  <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '40%' }" position="top">
-    <div class="d-flex align-items-center flex-column pt-6 px-3">
+  <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '50%' }" position="top">
+    <div class="flex align-items-center flex-column pt-6 px-3">
       <i class="pi pi-check-circle" :style="{ fontSize: '5rem', color: 'var(--green-500)' }" />
       <h5>ส่งอีเมลรีเซ็ตรหัสผ่านเรียบร้อยแล้ว</h5>
-      <div class="d-flex align-items-center flex-column pt-6 px-3" :style="{ lineHeight: 1.5, textIndent: '1rem' }">
-        บัญชีของคุณได้ส่งอีเมลรีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว <b>{{ state.email }}</b> กรุณาตรวจสอบอีเมลของคุณ และกรอกรหัสผ่านใหม่
+      <div class="flex align-items-center flex-column pt-6 px-3" :style="{ lineHeight: 1.5, textIndent: '1rem' }">
+        บัญชีของคุณได้ส่งอีเมลรีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบอีเมลของคุณ และกรอกรหัสผ่านใหม่
       </div>
     </div>
     <template v-slot:footer>
@@ -13,7 +13,7 @@
       </div>
     </template>
   </Dialog>
-  <Dialog v-if="isLogin" v-model:visible="displayModal" header="เข้าสู่ระบบ" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
+  <Dialog v-if="isLogin" v-model:visible="displayModal" header="เข้าสู่ระบบ" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: 'max-content' }" :modal="true">
     <FormKit
       type="form"
       :formClass="submitted ? 'hide' : 'show'"
@@ -47,24 +47,20 @@
           }"
           prefixIcon="password"
           suffixIcon="eyeClosed"
+          validationVisibility="dirty"
           @suffixIconClick="handleIconClick"
         />
       </div>
       <div class="mb-3">
-        <a href="#" class="link-primary text-remove-underline" @click="isLogin = false">ลืมรหัสผ่าน?</a>
+        <Button label="ลืมรหัสผ่าน?" class="p-button-text" @click="isLogin = false" />
       </div>
-      <div class="mb-3">
-        <Button type="submit" label="เข้าสู่ระบบ" class="mt-2 p-button-secondary" />
-      </div>
-      <div class="mb-3">
-        <label class="me-1">ยังไม่มีบัญชีใช่ไหม?</label>
-        <a class="link-primary text-remove-underline" @click="goToSignUp">
-          ลงทะเบียนเลย
-        </a>
-      </div>
+
+      <Button type="submit" label="เข้าสู่ระบบ" class="p-button-secondary" />
+
+      <Button label="ยังไม่มีบัญชีใช่ไหม? ลงทะเบียนเลย" class="p-button-text" @click="goToSignUp" />
     </FormKit>
   </Dialog>
-  <Dialog v-else v-model:visible="displayModal" header="ลืมรหัสผ่าน" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
+  <Dialog v-else v-model:visible="displayModal" header="ลืมรหัสผ่าน" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: 'max-content' }" :modal="true">
     <FormKit
       type="form"
       :formClass="submitted ? 'hide' : 'show'"
@@ -88,7 +84,7 @@
       </div>
       <div class="mb-3">
         <Button label="เข้าสู่ระบบ" class="mt-2 p-button-danger" @click="isLogin = true" />
-        <Button type="submit" label="ส่งอีเมลรีเซ็ตรหัสผ่าน" class="mt-2 p-button-secondary" />
+        <Button v-tooltip="'Click to proceed'" type="submit" label="ส่งอีเมลรีเซ็ตรหัสผ่าน" class="mt-2 p-button-secondary" />
       </div>
     </FormKit>
   </Dialog>
@@ -98,10 +94,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
-import Toast from 'primevue/toast'
-import Button from 'primevue/button'
 import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from '@firebase/auth'
 
 interface signInState {
