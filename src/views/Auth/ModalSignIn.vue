@@ -1,4 +1,18 @@
 <template>
+  <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '40%' }" position="top">
+    <div class="d-flex align-items-center flex-column pt-6 px-3">
+      <i class="pi pi-check-circle" :style="{ fontSize: '5rem', color: 'var(--green-500)' }" />
+      <h5>ส่งอีเมลรีเซ็ตรหัสผ่านเรียบร้อยแล้ว</h5>
+      <div class="d-flex align-items-center flex-column pt-6 px-3" :style="{ lineHeight: 1.5, textIndent: '1rem' }">
+        บัญชีของคุณได้ส่งอีเมลรีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว <b>{{ state.email }}</b> กรุณาตรวจสอบอีเมลของคุณ และกรอกรหัสผ่านใหม่
+      </div>
+    </div>
+    <template v-slot:footer>
+      <div class="flex justify-content-center">
+        <Button label="OK" class="p-button-text" @click="toggleDialog" />
+      </div>
+    </template>
+  </Dialog>
   <Dialog v-if="isLogin" v-model:visible="displayModal" header="เข้าสู่ระบบ" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '25%' }" :modal="true">
     <FormKit
       type="form"
@@ -111,6 +125,16 @@ const resetForm = () => {
 }
 
 const displayModal = ref(false)
+const showMessage = ref(false)
+
+const toggleDialog = () => {
+  showMessage.value = !showMessage.value
+
+  if (!showMessage.value) {
+    resetForm()
+    router.push({ name: 'Home' })
+  }
+}
 
 const toast = useToast()
 const showSuccess = (detail: string) => {
@@ -146,8 +170,9 @@ const forgotPassword = () => {
     sendPasswordResetEmail(auth, state.email)
       .then(() => {
         showSuccess('ส่งอีเมลรีเซ็ตรหัสผ่านสำเร็จ')
-        resetForm()
         displayModal.value = false
+        toggleDialog()
+        resetForm()
         router.push('/')
       })
       .catch((error) => {

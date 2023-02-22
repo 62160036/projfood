@@ -13,6 +13,7 @@ const router = createRouter({
       path: '/sign-up',
       name: 'SignUp',
       component: () => import('../views/Auth/index').then(x => x.SignUp),
+      meta: { title: 'PJF - Sign Up' },
     },
     {
       path: '/settings',
@@ -24,16 +25,19 @@ const router = createRouter({
           path: 'profile',
           name: 'Profile',
           component: () => import('../views/Auth/Settings/index').then(x => x.Profile),
+          meta: { title: 'PJF - Profile' },
         },
         {
           path: 'shipping',
           name: 'Shipping',
           component: () => import('../views/Auth/Settings/index').then(x => x.Shipping),
+          meta: { title: 'PJF - Shipping' },
         },
         {
           path: 'orderHistory',
           name: 'OrderHistory',
           component: () => import('../views/Auth/Settings/index').then(x => x.orderHistory),
+          meta: { title: 'PJF - Order History' },
         },
       ],
     },
@@ -54,6 +58,19 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  const nearestWithTitle = to.matched.slice().reverse().find(r => r.meta && r.meta.title)
+
+  if (nearestWithTitle) {
+    let title = 'PJF'
+    if (typeof nearestWithTitle.meta.title === 'string')
+      title = nearestWithTitle.meta.title
+
+    document.title = title
+  }
+  else {
+    const title = 'PJF'
+    document.title = title
+  }
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const auth = getAuth()
     onAuthStateChanged(auth, (user) => {
