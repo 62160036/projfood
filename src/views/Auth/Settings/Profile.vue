@@ -74,8 +74,8 @@ import { getAuth } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
-import db from '../../../main'
-import UserData from '../../../../projfoodApi/users'
+import db from '@/main'
+import UserData from '@/composables/users'
 
 interface ProflieState {
   email: string | null

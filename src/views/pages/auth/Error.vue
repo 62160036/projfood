@@ -24,9 +24,7 @@
       </div>
     </div>
   </div>
-  <AppConfig simple />
 </template>
 
-<script setup>
-import AppConfig from '@/layout/AppConfig.vue'
+<script setup lang="ts">
 </script>

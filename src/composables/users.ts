@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
-import db from '../src/main'
+import db from '@/main'
 
 export default function UserData() {
   return {
@@ -27,8 +27,6 @@ export default function UserData() {
     async updateUser(userId: string, email: string, firstname: string, lastname: string, phone: string) {
       try {
         const userRef = doc(db, 'users', `${userId}`)
-
-        // Set the "capital" field of the city 'DC'
         await updateDoc(userRef, {
           email,
           firstname,

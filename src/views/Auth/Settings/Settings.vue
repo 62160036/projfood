@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Header } from '../../../components/Header'
+import { Header } from '@/components/Header'
 
 const active = ref(0)
 const items = ref([

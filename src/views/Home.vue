@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import Banner from '../components/Layout/Banner.vue'
+import Banner from '@/components/Layout/Banner.vue'
 </script>
 
 <style lang="sass" scoped>

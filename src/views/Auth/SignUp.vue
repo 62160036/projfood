@@ -34,7 +34,7 @@
               <label for="email">อีเมล<span class="text-danger">*</span></label>
               <FormKit
                 v-model="state.email"
-                help="กดปุ่มไอคอนเพื่อตรวจสอบอว่ามีอีเมลนี้ในระบบหรือไม่"
+                help="กดปุ่มไอคอนเพื่อตรวจสอบว่ามีอีเมลนี้ในระบบหรือไม่"
                 type="email"
                 validation="required|email"
                 :validationMessages="{
@@ -207,8 +207,8 @@ import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth'
 import { collection, getDocs, query, where } from '@firebase/firestore'
-import UserData from '../../../projfoodApi/users'
-import db from '../../main'
+import UserData from '@/composables/users'
+import db from '@/main'
 
 interface RegisterState {
   email: string
@@ -221,6 +221,7 @@ interface RegisterState {
 }
 
 interface Address {
+  address_id: string
   address_info: string
   sub_district: string
   district: string
@@ -239,6 +240,7 @@ const state = reactive<RegisterState>({
   phone: '',
   address: [
     {
+      address_id: '',
       address_info: '',
       sub_district: '',
       district: '',
@@ -260,6 +262,7 @@ const resetForm = () => {
   state.phone = ''
   state.address = [
     {
+      address_id: '',
       address_info: '',
       sub_district: '',
       district: '',
@@ -310,7 +313,6 @@ const toggleDialog = () => {
 }
 
 async function handleSubmit() {
-  // Let's pretend this is an ajax request:
   submitted.value = true
   const auth = getAuth()
   createUserWithEmailAndPassword(auth, state.email, state.password)
@@ -318,6 +320,7 @@ async function handleSubmit() {
       sendEmailVerification(data.user)
       const address: any = state.address.map((item) => {
         return {
+          address_id: `address_${Math.floor(Math.random() * 100000000000000000)}`,
           address_info: item.address_info,
           sub_district: item.sub_district,
           district: item.district,
@@ -345,6 +348,5 @@ async function handleSubmit() {
     font-size: 18px;
     font-weight: 700;
   }
-
 }
 </style>
