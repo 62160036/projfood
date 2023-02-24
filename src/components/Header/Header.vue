@@ -26,24 +26,66 @@
             <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" @click="toggleDataTable" />
             <OverlayPanel id="overlay_panel" ref="op2" appendTo="body" :showCloseIcon="true" style="width: 600px">
               <DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll" @row-select="onProductSelect">
-                <Column field="name" header="Name" :sortable="true" headerStyle="min-width:12rem;" />
-                <Column header="Image" headerStyle="min-width:5rem;">
+                <Column field="name" header="ชื่อสินค้า" :sortable="true" headerStyle="min-width:12rem;" />
+                <Column header="รูป" headerStyle="min-width:5rem;">
                   <template v-slot:body="slotProps">
                     <img :src="`${contextPath}demo/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" width="50" class="shadow-2">
                   </template>
                 </Column>
-                <Column field="price" header="Price" :sortable="true" headerStyle="min-width:8rem;">
+                <Column field="price" header="ราคา" :sortable="true" headerStyle="min-width:8rem;">
                   <template v-slot:body="slotProps">
                     {{ formatCurrency(slotProps.data.price) }}
                   </template>
                 </Column>
-                <Column field="price" header="Action" :sortable="true" headerStyle="min-width:8rem;">
+                <Column field="price" header="Action" headerStyle="min-width:8rem;">
                   <template v-slot:body>
                     <Button label="ลบสินค้า" icon="pi pi-trash" class="p-button-raised p-button-danger" />
                   </template>
                 </Column>
               </DataTable>
               <div class="grid m-4">
+                <div class="col-12">
+                  <div class="grid">
+                    <div class="col align-items-center justify-content-center font-bold">
+                      สินค้าทั้งหมด
+                    </div>
+                    <div class="col justify-content-end flex-wrap font-bold">
+                      <div class="flex align-items-end justify-content-end">
+                        {{ formatCurrency(countAllPrice) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="col align-items-center justify-content-center font-bold">
+                      ค่าจัดส่ง
+                    </div>
+                    <div class="col justify-content-end flex-wrap font-bold">
+                      <div class="flex align-items-end justify-content-end">
+                        {{ formatCurrency(ShippedCost) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="col align-items-center justify-content-center font-bold">
+                      ภาษีมูลค่าเพิ่ม (7%)
+                    </div>
+                    <div class="col justify-content-end flex-wrap font-bold">
+                      <div class="flex align-items-end justify-content-end">
+                        {{ formatCurrency(tax) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="col font-bold">
+                      รวมทั้งหมด
+                    </div>
+                    <div class="col justify-content-end flex-wrap font-bold">
+                      <div class="flex align-items-end justify-content-end">
+                        {{ formatCurrency(sumPrice) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <Button label="เพิ่มสินค้า" icon="pi pi-plus" class="col p-button-raised p-button-info w-auto mr-2" />
                 <Button label="ชำระเงิน" icon="pi pi-money-bill" class="col p-button-raised p-button-success w-auto" />
               </div>
@@ -65,8 +107,9 @@ import { useRouter } from 'vue-router'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
 import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import { useToast } from 'primevue/usetoast'
-
 import HeaderLogo from './HeaderLogo.vue'
+import formatCurrency from '@/plugins/formatCurrency'
+
 import UserData from '@/composables/users'
 import db from '@/main'
 import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
@@ -102,6 +145,14 @@ const items = ref([
   },
 ])
 
+const user = ref({
+  email: '',
+  firstname: '',
+  lastname: '',
+  userId: '',
+  role: '',
+})
+
 const isVerified = ref(true)
 
 const menu = computed(() => {
@@ -127,7 +178,7 @@ const menu = computed(() => {
     {
       label: 'Dashboard',
       icon: 'pi pi-fw pi-chart-bar',
-      disabled: isVerified.value,
+      class: user.value.role !== 'admin' ? 'hidden' : '',
       to: '/dashboard',
     },
     {
@@ -165,12 +216,23 @@ const countCart = computed(() => {
   return products.value?.length
 })
 
+const ShippedCost = computed(() => {
+  return 100
+})
+const countAllPrice = computed(() => {
+  return products.value?.reduce((a: number, b: { price: number }) => a + b.price, 0)
+})
+
+const tax = computed(() => {
+  return countAllPrice.value * 0.07
+})
+
+const sumPrice = computed(() => {
+  return countAllPrice.value + ShippedCost.value + tax.value
+})
+
 const toggleDataTable = (event: any) => {
   op2.value.toggle(event)
-}
-
-const formatCurrency = (value: { toLocaleString: (arg0: string, arg1: { style: string; currency: string }) => any }) => {
-  return value.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })
 }
 
 const onProductSelect = (event: { data: { name: string } }) => {
@@ -180,13 +242,6 @@ const onProductSelect = (event: { data: { name: string } }) => {
 const userData = UserData()
 const router = useRouter()
 const isLoggedin = ref(true)
-
-const user = ref({
-  email: '',
-  firstname: '',
-  lastname: '',
-  userId: '',
-})
 
 async function readUserData(userId: string) {
   const q = query(collection(db, 'users'), where('userId', '==', userId))
@@ -198,6 +253,7 @@ async function readUserData(userId: string) {
         firstname: doc.data().firstname,
         lastname: doc.data().lastname,
         userId: doc.data().userId,
+        role: doc.data().role,
       }
     })
   })
@@ -223,11 +279,6 @@ function handleSignOut() {
     showError('แจ้งเตือนการออกจากระบบไม่สำเร็จ', error, 3000)
   })
 }
-
-// function updateUserData() {
-//   const auth = getAuth()
-//   userData.updateUser(auth.currentUser!.uid, 'testeeeee')
-// }
 
 (async () => {
   const auth = getAuth()

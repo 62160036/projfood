@@ -11,14 +11,14 @@
               {{ product.data.name }}
             </h4>
             <h6 class="mt-0 mb-3">
-              ${{ product.data.price }}
+              {{ formatCurrency(product.data.price) }}
             </h6>
             <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">{{ product.data.inventoryStatus }}</span>
-            <div class="car-buttons mt-5">
+            <!-- <div class="car-buttons mt-5">
               <Button type="button" class="p-button p-button-rounded mr-2" icon="pi pi-search" />
               <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
               <Button type="button" class="p-button-help p-button-rounded" icon="pi pi-cog" />
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -30,6 +30,7 @@
 import { onMounted, ref } from 'vue'
 import ProductService from '@/service/ProductService'
 import PhotoService from '@/service/PhotoService'
+import formatCurrency from '@/plugins/formatCurrency'
 
 const carouselResponsiveOptions = ref([
   {

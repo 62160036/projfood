@@ -217,6 +217,7 @@ interface RegisterState {
   firstname: string
   lastname: string
   phone: string
+  role: string
   address: Address[]
 }
 
@@ -237,6 +238,7 @@ const state = reactive<RegisterState>({
   firstname: '',
   lastname: '',
   phone: '',
+  role: 'user',
   address: [
     {
       address_info: '',
@@ -324,7 +326,7 @@ async function handleSubmit() {
           zip: item.zip,
         }
       })
-      users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, address)
+      users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, state.role, address)
 
       showToast('success', 'Success Message', 'สมัครสมาชิกสำเร็จ', 3000)
       toggleDialog()

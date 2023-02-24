@@ -3,7 +3,7 @@ import db from '@/main'
 
 export default function UserData() {
   return {
-    async writeUserData(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
+    async writeUserData(userId: string, email: string, firstname: string, lastname: string, phone: string, role: string, address: string[]) {
       try {
         const docRef = {
           userId,
@@ -11,6 +11,7 @@ export default function UserData() {
           firstname,
           lastname,
           phone,
+          role,
           address,
         }
         await setDoc(doc(db, 'users', `${userId}`), docRef)
