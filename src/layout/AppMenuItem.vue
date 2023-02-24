@@ -21,7 +21,7 @@
   </li>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { onBeforeMount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLayout } from '@/layout/composables/layout'
@@ -50,12 +50,12 @@ const route = useRoute()
 const { layoutConfig, layoutState, setActiveMenuItem, onMenuToggle } = useLayout()
 
 const isActiveMenu = ref(false)
-const itemKey = ref()
+const itemKey = ref(null)
 
 onBeforeMount(() => {
   itemKey.value = props.parentItemKey ? `${props.parentItemKey}-${props.index}` : String(props.index)
 
-  const activeItem: any = layoutState.activeMenuItem
+  const activeItem = layoutState.activeMenuItem
 
   // eslint-disable-next-line no-mixed-operators
   isActiveMenu.value = activeItem === itemKey.value || activeItem ? activeItem.startsWith(`${itemKey.value}-`) : false
@@ -63,11 +63,11 @@ onBeforeMount(() => {
 
 watch(
   () => layoutConfig.activeMenuItem.value,
-  (newVal: any) => {
+  (newVal) => {
     isActiveMenu.value = newVal === itemKey.value || newVal.startsWith(`${itemKey.value}-`)
   },
 )
-const itemClick = (event: { preventDefault: () => void }, item: { disabled: any; to: any; url: any; command: (arg0: { originalEvent: any; item: any }) => void; items: any }) => {
+const itemClick = (event, item) => {
   if (item.disabled) {
     event.preventDefault()
     return
@@ -81,12 +81,12 @@ const itemClick = (event: { preventDefault: () => void }, item: { disabled: any;
   if (item.command)
     item.command({ originalEvent: event, item })
 
-  const foundItemKey: any = item.items ? (isActiveMenu.value ? props.parentItemKey : itemKey) : itemKey.value
+  const foundItemKey = item.items ? (isActiveMenu.value ? props.parentItemKey : itemKey) : itemKey.value
 
   setActiveMenuItem(foundItemKey)
 }
 
-const checkActiveRoute = (item: { to: string }) => {
+const checkActiveRoute = (item) => {
   return route.path === item.to
 }
 </script>
