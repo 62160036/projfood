@@ -3,7 +3,6 @@
     <FormKit
       type="form"
       :formClass="submitted ? 'hide' : 'show'"
-      submitLabel="สมัครสมาชิก"
       :actions="false"
       @submit="updateProfile"
     >
@@ -25,12 +24,21 @@
             <label for="phone">เบอร์โทรศัพท์</label>
             <FormKit
               v-model="state.phone"
-              type="tel"
-              placeholder="xxx-xxx-xxxx"
-              validation="matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
+              type="mask"
+              mode="select"
+              name="phone"
+              mask="0##-###-####"
+              :tokens="{
+                '#': {
+                  selectFill: '0',
+                },
+              }"
+              validation="required|matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
               :validationMessages="{
                 matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
+                required: 'จำเป็นต้องกรอกเบอร์โทรศัพท์',
               }"
+              prefixIcon="telephone"
               validationVisibility="dirty"
             />
           </div>
@@ -48,6 +56,10 @@
               <FormKit
                 v-model="state.firstname"
                 type="text"
+                validation="required"
+                :validationMessages="{
+                  required: 'จำเป็นต้องกรอกชื่อ',
+                }"
               />
             </div>
             <div class="field col">
@@ -55,6 +67,10 @@
               <FormKit
                 v-model="state.lastname"
                 type="text"
+                validation="required"
+                :validationMessages="{
+                  required: 'จำเป็นต้องกรอกนามสกุล',
+                }"
               />
             </div>
           </div>
@@ -65,13 +81,12 @@
       </div>
     </FormKit>
   </div>
-  <Toast position="bottom-left" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getAuth } from 'firebase/auth'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 import db from '@/main'
@@ -91,7 +106,7 @@ const state = ref<ProflieState>({
   lastname: '',
   phone: '',
 })
-
+const auth = getAuth()
 const router = useRouter()
 const toast = useToast()
 const userData = UserData()
@@ -119,14 +134,15 @@ function getUserProfile() {
 async function readUserData(userId: string) {
   const q = query(collection(db, 'users'), where('userId', '==', userId))
 
-  const querySnapshot = await getDocs(q)
-  querySnapshot.forEach((doc) => {
-    state.value = {
-      email: doc.data().email,
-      firstname: doc.data().firstname,
-      lastname: doc.data().lastname,
-      phone: doc.data().phone,
-    }
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      state.value = {
+        email: doc.data().email,
+        firstname: doc.data().firstname,
+        lastname: doc.data().lastname,
+        phone: doc.data().phone,
+      }
+    })
   })
 }
 
@@ -139,9 +155,6 @@ async function updateProfile() {
     const uid = user.uid
     await userData.updateUser(uid, state.value.email!, state.value.firstname, state.value.lastname, state.value.phone)
     showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
-    setTimeout(() => {
-      router.go(0)
-    }, 1500)
   }
   else {
     showToast('error', 'บันทึกข้อมูลไม่สำเร็จ', 'บันทึกข้อมูลไม่สำเร็จ', 3000)

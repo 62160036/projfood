@@ -13,6 +13,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('@/views/Dashboard.vue'),
+      meta: { requiresAuth: true, title: 'PJF - Dashboard' },
     },
     {
       path: '/sign-up',

@@ -5,7 +5,9 @@ import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
 import { defaultConfig, plugin } from '@formkit/vue'
+import { createProPlugin, inputs } from '@formkit/pro'
 import '@formkit/themes/genesis'
+import '@formkit/pro/genesis'
 import '@/assets/styles.scss'
 
 import AutoComplete from 'primevue/autocomplete'
@@ -132,6 +134,10 @@ getAnalytics(app)
 export default db
 
 const vue = createApp(App)
+
+const pro = createProPlugin('fk-909ffd77bc7', inputs)
+vue.use(plugin, defaultConfig({ plugins: [pro] }))
+
 vue.use(router)
 vue.use(ToastService)
 vue.use(PrimeVue)

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <div class="topbar">
     <div class="text-bg-light">
@@ -22,7 +23,31 @@
             </SplitButton>
           </div>
           <div class="flex align-items-center justify-content-center">
-            <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" />
+            <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" @click="toggleDataTable" />
+            <OverlayPanel id="overlay_panel" ref="op2" appendTo="body" :showCloseIcon="true" style="width: 600px">
+              <DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll" @row-select="onProductSelect">
+                <Column field="name" header="Name" :sortable="true" headerStyle="min-width:12rem;" />
+                <Column header="Image" headerStyle="min-width:5rem;">
+                  <template v-slot:body="slotProps">
+                    <img :src="`${contextPath}demo/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" width="50" class="shadow-2">
+                  </template>
+                </Column>
+                <Column field="price" header="Price" :sortable="true" headerStyle="min-width:8rem;">
+                  <template v-slot:body="slotProps">
+                    {{ formatCurrency(slotProps.data.price) }}
+                  </template>
+                </Column>
+                <Column field="price" header="Action" :sortable="true" headerStyle="min-width:8rem;">
+                  <template v-slot:body>
+                    <Button label="ลบสินค้า" icon="pi pi-trash" class="p-button-raised p-button-danger" />
+                  </template>
+                </Column>
+              </DataTable>
+              <div class="grid m-4">
+                <Button label="เพิ่มสินค้า" icon="pi pi-plus" class="col p-button-raised p-button-info w-auto mr-2" />
+                <Button label="ชำระเงิน" icon="pi pi-money-bill" class="col p-button-raised p-button-success w-auto" />
+              </div>
+            </OverlayPanel>
           </div>
         </div>
       </div>
@@ -35,16 +60,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
-import { collection, getDocs, query, where } from '@firebase/firestore'
+import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import { useToast } from 'primevue/usetoast'
-import ModalSignIn from '../../views/Auth/ModalSignIn.vue'
-import db from '../../main'
 
-import UserData from '../../../projfoodApi/users'
 import HeaderLogo from './HeaderLogo.vue'
+import UserData from '@/composables/users'
+import db from '@/main'
+import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
+
+import ProductService from '@/service/ProductService'
+import { useLayout } from '@/layout/composables/layout'
 
 const items = ref([
   {
@@ -72,14 +100,8 @@ const items = ref([
     // icon: 'pi pi-fw pi-cog',
     // to: '/settings',
   },
-  {
-    label: 'สินค้าแนะนำ',
-    // icon: 'pi pi-fw pi-cog',
-    // to: '/settings',
-  },
 ])
 
-const countCart = ref<string>('100')
 const isVerified = ref(true)
 
 const menu = computed(() => {
@@ -112,7 +134,7 @@ const menu = computed(() => {
       separator: true,
     },
     {
-      label: 'Logout',
+      label: 'ออกจากระบบ',
       icon: 'pi pi-fw pi-power-off',
       command: () => {
         handleSignOut()
@@ -120,6 +142,40 @@ const menu = computed(() => {
     },
   ]
 })
+
+const toast = useToast()
+const showSuccess = () => {
+  toast.add({ severity: 'success', summary: 'Success Message', detail: 'ออกจากระบบสำเร็จ', life: 3000 })
+}
+const showError = (summary: string, detail: string, life: number) => {
+  toast.add({ severity: 'error', summary, detail, life })
+}
+
+const { contextPath } = useLayout()
+const selectedProduct = ref()
+const products = ref()
+const productService = new ProductService()
+const op2 = ref()
+
+onMounted(() => {
+  productService.getProductsSmall().then(data => (products.value = data))
+})
+
+const countCart = computed(() => {
+  return products.value?.length
+})
+
+const toggleDataTable = (event: any) => {
+  op2.value.toggle(event)
+}
+
+const formatCurrency = (value: { toLocaleString: (arg0: string, arg1: { style: string; currency: string }) => any }) => {
+  return value.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })
+}
+
+const onProductSelect = (event: { data: { name: string } }) => {
+  toast.add({ severity: 'info', summary: 'Product Selected', detail: event.data.name, life: 3000 })
+}
 
 const userData = UserData()
 const router = useRouter()
@@ -135,23 +191,18 @@ const user = ref({
 async function readUserData(userId: string) {
   const q = query(collection(db, 'users'), where('userId', '==', userId))
 
-  const querySnapshot = await getDocs(q)
-  querySnapshot.forEach((doc) => {
-    user.value = {
-      email: doc.data().email,
-      firstname: doc.data().firstname,
-      lastname: doc.data().lastname,
-      userId: doc.data().userId,
-    }
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      user.value = {
+        email: doc.data().email,
+        firstname: doc.data().firstname,
+        lastname: doc.data().lastname,
+        userId: doc.data().userId,
+      }
+    })
   })
 }
-const toast = useToast()
-const showSuccess = () => {
-  toast.add({ severity: 'success', summary: 'Success Message', detail: 'ออกจากระบบสำเร็จ', life: 3000 })
-}
-const showError = (summary: string, detail: string, life: number) => {
-  toast.add({ severity: 'error', summary, detail, life })
-}
+
 const modalSignIn = ref<InstanceType<typeof ModalSignIn>>(null!)
 
 function openModalSignIn() {

@@ -31,7 +31,7 @@
         >
           <div class="flex">
             <div class="col mb-2">
-              <label for="email">อีเมล<span class="text-danger">*</span></label>
+              <label for="email">อีเมล<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.email"
                 help="กดปุ่มไอคอนเพื่อตรวจสอบว่ามีอีเมลนี้ในระบบหรือไม่"
@@ -48,11 +48,18 @@
               />
             </div>
             <div class="col mb-2">
-              <label for="phone">เบอร์โทรศัพท์<span class="text-danger">*</span></label>
+              <label for="phone">เบอร์โทรศัพท์<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.phone"
-                type="tel"
-                placeholder="xxx-xxx-xxxx"
+                type="mask"
+                name="phone"
+                mode="select"
+                mask="0##-###-####"
+                :tokens="{
+                  '#': {
+                    selectFill: '0',
+                  },
+                }"
                 validation="required|matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
                 :validationMessages="{
                   matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
@@ -65,7 +72,7 @@
           </div>
           <div class="flex">
             <div class="col mb-2">
-              <label for="password">รหัสผ่าน<span class="text-danger">*</span></label>
+              <label for="password">รหัสผ่าน<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.password"
                 type="password"
@@ -82,7 +89,7 @@
               />
             </div>
             <div class="col mb-2">
-              <label for="password_confirm">ยืนยันรหัสผ่าน<span class="text-danger">*</span></label>
+              <label for="password_confirm">ยืนยันรหัสผ่าน<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.confirmPassword"
                 type="password"
@@ -100,7 +107,7 @@
           </div>
           <div class="flex">
             <div class="col mb-2">
-              <label for="firstname">ชื่อ<span class="text-danger">*</span></label>
+              <label for="firstname">ชื่อ<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.firstname"
                 type="text"
@@ -108,11 +115,10 @@
                 :validationMessages="{
                   required: 'จำเป็นต้องกรอกชื่อ',
                 }"
-                prefixIcon="text"
               />
             </div>
             <div class="col mb-2">
-              <label for="lastname">นามสกุล<span class="text-danger">*</span></label>
+              <label for="lastname">นามสกุล<span class="text-red-500">*</span></label>
               <FormKit
                 v-model="state.lastname"
                 type="text"
@@ -120,14 +126,13 @@
                 :validationMessages="{
                   required: 'จำเป็นต้องกรอกนามสกุล',
                 }"
-                prefixIcon="text"
               />
             </div>
           </div>
           <div v-for="item, index in state.address" :key="index" class="row">
             <div class="flex">
               <div class="col mb-2">
-                <label for="address">ที่อยู่<span class="text-danger">*</span></label>
+                <label for="address">ที่อยู่<span class="text-red-500">*</span></label>
                 <FormKit
                   v-model="item.address_info"
                   type="text"
@@ -135,13 +140,12 @@
                   :validationMessages="{
                     required: 'จำเป็นต้องกรอกที่อยู่',
                   }"
-                  prefixIcon="text"
                 />
               </div>
             </div>
             <div class="flex">
               <div class="col mb-2">
-                <label for="sub_district">ตำบล<span class="text-danger">*</span></label>
+                <label for="sub_district">ตำบล<span class="text-red-500">*</span></label>
                 <FormKit
                   v-model="item.sub_district"
                   type="text"
@@ -149,11 +153,10 @@
                   :validationMessages="{
                     required: 'จำเป็นต้องกรอกตำบล',
                   }"
-                  prefixIcon="text"
                 />
               </div>
               <div class="col mb-2">
-                <label for="district">อำเภอ<span class="text-danger">*</span></label>
+                <label for="district">อำเภอ<span class="text-red-500">*</span></label>
                 <FormKit
                   v-model="item.district"
                   type="text"
@@ -161,13 +164,12 @@
                   :validationMessages="{
                     required: 'จำเป็นต้องกรอกอำเภอ',
                   }"
-                  prefixIcon="text"
                 />
               </div>
             </div>
             <div class="flex">
               <div class="col mb-2">
-                <label for="province">จังหวัด<span class="text-danger">*</span></label>
+                <label for="province">จังหวัด<span class="text-red-500">*</span></label>
                 <FormKit
                   v-model="item.province"
                   type="text"
@@ -175,11 +177,10 @@
                   :validationMessages="{
                     required: 'จำเป็นต้องกรอกจังหวัด',
                   }"
-                  prefixIcon="text"
                 />
               </div>
               <div class="col mb-2">
-                <label for="zip">รหัสไปรษณีย์<span class="text-danger">*</span></label>
+                <label for="zip">รหัสไปรษณีย์<span class="text-red-500">*</span></label>
                 <FormKit
                   v-model="item.zip"
                   type="text"
@@ -188,7 +189,6 @@
                     required: 'จำเป็นต้องกรอกรหัสไปรษณีย์',
                     matches: 'รหัสไปรษณีย์ต้องเป็นตัวเลขเท่านั้น',
                   }"
-                  prefixIcon="text"
                 />
               </div>
             </div>
@@ -221,7 +221,6 @@ interface RegisterState {
 }
 
 interface Address {
-  address_id: string
   address_info: string
   sub_district: string
   district: string
@@ -240,7 +239,6 @@ const state = reactive<RegisterState>({
   phone: '',
   address: [
     {
-      address_id: '',
       address_info: '',
       sub_district: '',
       district: '',
@@ -262,7 +260,6 @@ const resetForm = () => {
   state.phone = ''
   state.address = [
     {
-      address_id: '',
       address_info: '',
       sub_district: '',
       district: '',
@@ -320,7 +317,6 @@ async function handleSubmit() {
       sendEmailVerification(data.user)
       const address: any = state.address.map((item) => {
         return {
-          address_id: `address_${Math.floor(Math.random() * 100000000000000000)}`,
           address_info: item.address_info,
           sub_district: item.sub_district,
           district: item.district,
