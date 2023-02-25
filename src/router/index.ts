@@ -1,24 +1,5 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { createRouter, createWebHistory } from 'vue-router'
-import { ref } from 'vue'
-import db from '@/main'
-
-const role = ref({
-  role: '',
-})
-
-function readUserData(userId: string) {
-  const q = query(collection(db, 'users'), where('userId', '==', userId))
-
-  onSnapshot(q, (querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      role.value = {
-        role: doc.data().role,
-      }
-    })
-  })
-}
 
 const router = createRouter({
   history: createWebHistory(),
@@ -94,6 +75,13 @@ const router = createRouter({
       component: () => import('../views/pages/Access.vue'),
       meta: { title: 'PJF - Access Denied' },
     },
+    // Test Page
+    {
+      path: '/test',
+      name: 'Test',
+      component: () => import('@/views/Test/Test.vue'),
+      meta: { title: 'PJF - Test' },
+    },
 
   ],
 })
@@ -115,32 +103,27 @@ router.beforeEach((to, _from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const auth = getAuth()
     onAuthStateChanged(auth, (user) => {
-      if (user)
+      if (user && user.emailVerified)
         next()
       else
         next({ name: 'accessDenied' })
     })
   }
-
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
+  else if (to.matched.some(record => record.meta.requiresAdmin)) {
     const auth = getAuth()
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        readUserData(user.uid)
-        if (role.value.role === 'admin')
-          next()
-
-        else
-          next({ name: 'accessDenied' })
+        user.getIdTokenResult().then((idTokenResult) => {
+          if (idTokenResult.claims.admin)
+            next()
+          else
+            next({ name: 'accessDenied' })
+        })
       }
-      else {
-        next({ name: 'accessDenied' })
-      }
+      else { next({ name: 'accessDenied' }) }
     })
   }
-  else {
-    next()
-  }
+  else { next() }
 })
 
 export default router

@@ -154,6 +154,7 @@ const user = ref({
 })
 
 const isVerified = ref(true)
+const isAdmin = ref(true)
 
 const menu = computed(() => {
   return [
@@ -178,7 +179,7 @@ const menu = computed(() => {
     {
       label: 'Dashboard',
       icon: 'pi pi-fw pi-chart-bar',
-      class: user.value.role !== 'admin' ? 'hidden' : '',
+      class: !isAdmin.value ? 'hidden' : '',
       to: '/dashboard',
     },
     {
@@ -295,9 +296,13 @@ function handleSignOut() {
           isVerified.value = false
         }
         readUserData(auth.currentUser!.uid)
+        auth.currentUser.getIdTokenResult().then((idTokenResult) => {
+          if (idTokenResult.claims.admin)
+            isAdmin.value = idTokenResult.claims.admin
+          else isAdmin.value = false
+        })
       }
     }
-
     else { isLoggedin.value = false }
   })
 })()

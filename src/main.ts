@@ -4,6 +4,7 @@ import ToastService from 'primevue/toastservice'
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
+import { getFunctions } from 'firebase/functions'
 import { defaultConfig, plugin } from '@formkit/vue'
 import { createProPlugin, inputs } from '@formkit/pro'
 import '@formkit/themes/genesis'
@@ -129,9 +130,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
+const functions = getFunctions(app)
 getAnalytics(app)
 
 export default db
+export { functions }
 
 const vue = createApp(App)
 
