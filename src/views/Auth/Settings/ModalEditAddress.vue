@@ -9,9 +9,6 @@
       >
         <div class="flex">
           <div class="col">
-            <div class="justify-content-center align-items-center font-bold mb-4">
-              แก้ไขที่อยู่
-            </div>
             <div class="field">
               <label for="phone">ที่อยู่</label>
               <FormKit
@@ -89,6 +86,7 @@ import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 import db from '@/main'
+import UserData from '@/composables/users'
 
 interface AddressState {
   address_info: string
@@ -109,6 +107,7 @@ const state = ref<AddressState>({
 const isCreate = ref(false)
 const auth = getAuth()
 const router = useRouter()
+const userData = UserData()
 const displayModal = ref(false)
 const ind = ref('')
 const submitted = ref(false)
@@ -162,15 +161,14 @@ async function updateAddress() {
     const auth = getAuth()
     const user = auth.currentUser
     if (user) {
-      const q = query(collection(db, 'users'), where('userId', '==', user.uid))
-      const querySnapshot = await getDocs(q)
-      querySnapshot.forEach((doc) => {
-        const address = doc.data().address
-        address.push(state.value)
-        updateDoc(doc.ref, {
-          address,
-        })
-      })
+      const address: any = {
+        address_info: state.value.address_info,
+        sub_district: state.value.sub_district,
+        district: state.value.district,
+        province: state.value.province,
+        zip: state.value.zip,
+      }
+      userData.createAddressByUserId(user.uid, address)
       showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
       resetForm()
       displayModal.value = false

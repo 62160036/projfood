@@ -1,9 +1,11 @@
-import { collection, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
-import db from '@/main'
-
 export default function UserData() {
   return {
-    async writeUserData(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
+    async getAllUsers() {
+      const result = await fetch('https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/users')
+      const data = result.json()
+      return data
+    },
+    async createUser(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
       try {
         const docRef = {
           userId,
@@ -13,25 +15,48 @@ export default function UserData() {
           phone,
           address,
         }
-        await setDoc(doc(db, 'users', `${userId}`), docRef)
+        await fetch('https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/create/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(docRef),
+        })
       }
       catch (e) {
         return e
       }
     },
-    async getAllUsers() {
-      const userCol = collection(db, 'users')
-      const userSnapshot = await getDocs(userCol)
-      return userSnapshot.docs.map(doc => doc.data())
-    },
-    async updateUser(userId: string, email: string, firstname: string, lastname: string, phone: string) {
+
+    async updateUser(userId: string, firstname: string, lastname: string, phone: string) {
       try {
-        const userRef = doc(db, 'users', `${userId}`)
-        await updateDoc(userRef, {
-          email,
+        const userRef = {
           firstname,
           lastname,
           phone,
+        }
+        await fetch(`https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/update/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userRef),
+        })
+      }
+      catch (e) {
+        return e
+      }
+    },
+
+    // create address by user id
+    async createAddressByUserId(userId: string, address: string[]) {
+      try {
+        await fetch(`https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/create/users/${userId}/address`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(address),
         })
       }
       catch (e) {

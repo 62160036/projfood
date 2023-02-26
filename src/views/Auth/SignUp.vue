@@ -324,7 +324,7 @@ async function handleSubmit() {
           zip: item.zip,
         }
       })
-      users.writeUserData(data.user.uid, state.email, state.firstname, state.lastname, state.phone, address)
+      users.createUser(data.user.uid, state.email, state.firstname, state.lastname, state.phone, address)
 
       showToast('success', 'Success Message', 'สมัครสมาชิกสำเร็จ', 3000)
       toggleDialog()

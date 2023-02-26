@@ -153,7 +153,7 @@ async function updateProfile() {
 
   if (user !== null) {
     const uid = user.uid
-    await userData.updateUser(uid, state.value.email!, state.value.firstname, state.value.lastname, state.value.phone)
+    await userData.updateUser(uid, state.value.firstname, state.value.lastname, state.value.phone)
     showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
   }
   else {

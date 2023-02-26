@@ -95,33 +95,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getAuth } from 'firebase/auth'
-import { arrayRemove, collection, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore'
+import { arrayRemove, collection, getDocs, query, updateDoc, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
 import ModalEditAddress from './ModalEditAddress.vue'
+import Address from './data/address'
 import db from '@/main'
 import UserData from '@/composables/users'
 
-interface AddressState {
-  address_id: string
-  address_info: any
-  sub_district: string
-  district: string
-  province: string
-  zip: string
-  length: number
-}
+const dataAddress = Address()
 
-const stateAddress = ref<AddressState>({
-  address_id: '',
-  address_info: '',
-  sub_district: '',
-  district: '',
-  province: '',
-  zip: '',
-  length: 0,
-})
+const stateAddress = computed(() =>
+  dataAddress.stateAddress.value,
+)
 
 const events1 = ref([
   { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
@@ -172,27 +159,8 @@ async function deleteAddress(index: string) {
   }
 }
 
-function getAddress() {
-  const user = auth.currentUser
-  const q = query(collection(db, 'users'), where('userId', '==', user?.uid))
-
-  onSnapshot(q, (querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      stateAddress.value = doc.data().address.map((item: AddressState) => {
-        return {
-          address_info: item.address_info,
-          sub_district: item.sub_district,
-          district: item.district,
-          province: item.province,
-          zip: item.zip,
-        }
-      })
-    })
-  })
-}
-
 (() => {
-  getAddress()
+  dataAddress.getAddress()
 })()
 </script>
 

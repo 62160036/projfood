@@ -3,10 +3,23 @@
   <div class="userManage">
     <div class="card">
       <h5>จัดการผู้ใช้งาน</h5>
-      <DataTable v-model:editingRows="editingRows" :value="usersList" editMode="row" dataKey="id" responsiveLayout="scroll" @row-edit-save="onRowEditSave">
+      <DataTable
+        ref="dt" v-model:editingRows="editingRows" :value="usersList"
+        editMode="row" dataKey="userId" responsiveLayout="scroll"
+        :filters="filters" :globalFilterFields="['email', 'firstname', 'lastname', 'phone']"
+        @row-edit-save="onRowEditSave"
+      >
+        <template v-slot:header>
+          <div class="table-header flex flex-column md:flex-row md:justiify-content-between">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search" />
+              <InputText v-model="filters.global.value" placeholder="Search..." />
+            </span>
+          </div>
+        </template>
         <Column field="email" header="อีเมล" style="width:20%">
           <template v-slot:editor="{ data, field }">
-            <InputText v-model="data[field]" autofocus />
+            <InputText v-model="data[field]" disabled />
           </template>
         </Column>
         <Column field="firstname" header="ชื่อ" style="width:20%">
@@ -21,18 +34,18 @@
         </Column>
         <Column field="phone" header="เบอร์โทร" style="width:20%">
           <template v-slot:editor="{ data, field }">
-            <InputText v-model="data[field]" />
+            <InputMask v-model="data[field]" mask="999-999-9999" />
           </template>
         </Column>
         <Column field="role" header="ผู้ดูแลระบบ" style="width:20%">
-          <template v-slot:body="{ data }">
-            <InputSwitch v-model="data.role.admin" disabled />
+          <template v-slot:body="{ data, field }">
+            <InputSwitch v-model="data[field].admin" disabled />
           </template>
-          <template v-slot:editor="{ data }">
-            <InputSwitch v-model="data.role.admin" @change="changeRole(data.userId, data.role.admin)" />
+          <template v-slot:editor="{ data, field }">
+            <InputSwitch v-model="data[field].admin" @change="changeRole(data.userId, data[field].admin)" />
           </template>
         </Column>
-        <Column :rowEditor="true" style="width:10%; min-width:8rem" bodyStyle="text-align:center" />
+        <Column header="Action" :rowEditor="true" style="width:10%; min-width:8rem" bodyStyle="text-align:center" />
       </DataTable>
     </div>
   </div>
@@ -42,19 +55,49 @@
 import { httpsCallable } from 'firebase/functions'
 import { ref } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { useToast } from 'primevue/usetoast'
+import { FilterMatchMode } from 'primevue/api'
 import { functions } from '@/main'
 import UserData from '@/composables/users'
 
+interface ProflieState {
+  firstname: string
+  lastname: string
+  phone: string
+
+}
+
+const state = ref<ProflieState>({
+  firstname: '',
+  lastname: '',
+  phone: '',
+})
+
+const dt = ref()
 const users = UserData()
 const usersList = ref()
 const loading = ref(true)
 const isMe = ref(true)
 const editingRows = ref([])
+const toast = useToast()
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+})
 
-const onRowEditSave = (event: { newData: any; index: any }) => {
+const showToast = (severity: string, summary: string, detail: string, life: number) => {
+  toast.add({ severity, summary, detail, life })
+}
+
+const onRowEditSave = async (event: { newData: any; index: any }) => {
   const { newData, index } = event
 
-  usersList.value[index] = newData
+  usersList.value[index] = await newData
+  state.value = {
+    firstname: newData.firstname,
+    lastname: newData.lastname,
+    phone: newData.phone,
+  }
+  await users.updateUser(newData.userId, state.value.firstname, state.value.lastname, state.value.phone)
 }
 
 function changeRole(uid: any, event: any) {
@@ -62,18 +105,18 @@ function changeRole(uid: any, event: any) {
   const data = { uid, role: { admin: event } }
   addMessage(data)
     .then((result) => {
-      console.log(result)
+      showToast('success', 'สำเร็จ', 'เปลี่ยนสิทธิ์ผู้ใช้งานเรียบร้อย', 3000)
     })
     .catch((error) => {
-      console.log(error)
+      showToast('error', 'ผิดพลาด', error.message, 3000)
     })
 }
 
 (async () => {
   const auth = getAuth()
 
-  onAuthStateChanged(auth, (user) => {
-    usersList.value = users.getAllUsers()
+  onAuthStateChanged(auth, async (user) => {
+    usersList.value = await users.getAllUsers()
     if (user)
       isMe.value = user.uid === usersList.value.userId
   })
@@ -91,6 +134,15 @@ function changeRole(uid: any, event: any) {
   min-height: 100vh;
   justify-content: space-between;
   transition: margin-left 0.2s;
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media screen and (max-width: 960px) {
+        align-items: start;
+}
+}
 
 }
 </style>

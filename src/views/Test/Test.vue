@@ -97,15 +97,11 @@ async function readUserData(userId: string) {
         readUserData(auth.currentUser!.uid)
     }
     user?.getIdTokenResult().then((idTokenResult) => {
-      if (idTokenResult.claims.admin) {
+      if (idTokenResult.claims.admin)
         isAdmin.value = idTokenResult.claims.admin
-        console.log('admin')
-      }
 
-      else {
+      else
         isAdmin.value = false
-        console.log('not admin')
-      }
     })
   })
 
