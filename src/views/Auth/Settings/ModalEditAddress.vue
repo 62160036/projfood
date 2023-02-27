@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { collection, getDocs, query, updateDoc, where } from '@firebase/firestore'
+import { collection, getDocs, query, where } from '@firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
@@ -109,7 +109,7 @@ const auth = getAuth()
 const router = useRouter()
 const userData = UserData()
 const displayModal = ref(false)
-const ind = ref('')
+const indexAd = ref('')
 const submitted = ref(false)
 const toast = useToast()
 const showToast = (severity: string, summary: string, detail: string, life: number) => {
@@ -130,7 +130,7 @@ async function openModal(index: string) {
   }
   else {
     isCreate.value = false
-    ind.value = index
+    indexAd.value = index
     getAddress(index)
     displayModal.value = true
   }
@@ -156,19 +156,19 @@ const resetForm = () => {
 }
 
 async function updateAddress() {
+  const address: any = {
+    address_info: state.value.address_info,
+    sub_district: state.value.sub_district,
+    district: state.value.district,
+    province: state.value.province,
+    zip: state.value.zip,
+  }
   if (isCreate.value) {
     submitted.value = true
     const auth = getAuth()
     const user = auth.currentUser
     if (user) {
-      const address: any = {
-        address_info: state.value.address_info,
-        sub_district: state.value.sub_district,
-        district: state.value.district,
-        province: state.value.province,
-        zip: state.value.zip,
-      }
-      userData.createAddressByUserId(user.uid, address)
+      userData.createAddress(user.uid, address)
       showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
       resetForm()
       displayModal.value = false
@@ -183,16 +183,7 @@ async function updateAddress() {
     const user = auth.currentUser
 
     if (user) {
-      const q = query(collection(db, 'users'), where('userId', '==', user.uid))
-
-      const querySnapshot = await getDocs(q)
-      querySnapshot.forEach((doc) => {
-        const address = doc.data().address
-        address[ind.value] = state.value
-        updateDoc(doc.ref, {
-          address,
-        })
-      })
+      userData.updateAddress(user.uid, address, indexAd.value)
       showToast('success', 'บันทึกข้อมูลสำเร็จ', 'บันทึกข้อมูลสำเร็จ', 3000)
       displayModal.value = false
     }

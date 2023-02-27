@@ -26,10 +26,6 @@ const app = express()
 
 app.use(cors({ origin: true }))
 
-app.get('/hello-world', (req, res) => {
-  return res.status(200).send('Hello World!')
-})
-
 // users
 // all users
 app.get('/users', (req, res) => {
@@ -51,67 +47,7 @@ app.get('/users', (req, res) => {
   )
 })
 
-// create user
-app.post('/create/users', (req, res) => {
-  (async () => {
-    try {
-      await db.collection('users').doc(`/${req.body.userId}/`)
-        .set({
-          userId: req.body.userId,
-          email: req.body.email,
-          firstname: req.body.firstname,
-          lastname: req.body.lastname,
-          phone: req.body.phone,
-          address: req.body.address,
-        })
-      return res.status(200).json({ message: 'User created successfully' })
-    }
-    catch (error) {
-      return res.status(500).json({ error })
-    }
-  })()
-})
-
-// update user
-app.put('/update/users/:userId', (req, res) => {
-  (async () => {
-    try {
-      const document = db.collection('users').doc(req.params.userId)
-      await document.update({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        phone: req.body.phone,
-      })
-      return res.status(200).json({ message: 'User updated successfully' })
-    }
-    catch (error) {
-      return res.status(500).json({ error })
-    }
-  })()
-})
-
-// create user address
-app.post('/create/users/:userId/address', (req, res) => {
-  (async () => {
-    try {
-      db.collection('users').where('userId', '==', req.params.userId).get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          const address = doc.data().address
-          address.push(req.body)
-          db.collection('users').doc(req.params.userId).update({
-            address,
-          })
-        })
-      })
-      return res.status(200).json({ message: 'Address created successfully' })
-    }
-    catch (error) {
-      return res.status(500).json({ error })
-    }
-  })()
-})
-
-exports.app = functions.region('asia-southeast1').https.onRequest(app)
+exports.app = functions.https.onRequest(app)
 
 exports.AddUserRole = functions.auth.user().onCreate(
   async (authUser) => {

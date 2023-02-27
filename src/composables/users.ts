@@ -1,3 +1,6 @@
+import { arrayRemove, collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore'
+import db from '@/main'
+
 export default function UserData() {
   return {
     async getAllUsers() {
@@ -6,57 +9,72 @@ export default function UserData() {
       return data
     },
     async createUser(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
-      try {
-        const docRef = {
-          userId,
-          email,
-          firstname,
-          lastname,
-          phone,
-          address,
-        }
-        await fetch('https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/create/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(docRef),
-        })
+      const docRef = {
+        userId,
+        email,
+        firstname,
+        lastname,
+        phone,
+        address,
       }
-      catch (e) {
-        return e
-      }
+      return await setDoc(doc(db, 'users', `${userId}`), docRef)
     },
-
     async updateUser(userId: string, firstname: string, lastname: string, phone: string) {
       try {
-        const userRef = {
+        const userRef = doc(db, 'users', userId)
+
+        await updateDoc(userRef, {
           firstname,
           lastname,
           phone,
-        }
-        await fetch(`https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/update/users/${userId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userRef),
         })
       }
       catch (e) {
         return e
       }
     },
-
-    // create address by user id
-    async createAddressByUserId(userId: string, address: string[]) {
+    async createAddress(userId: string, address: string[]) {
       try {
-        await fetch(`https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/create/users/${userId}/address`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(address),
+        const q = query(collection(db, 'users'), where('userId', '==', userId))
+        const querySnapshot = await getDocs(q)
+        querySnapshot.forEach((doc) => {
+          const addressRef = doc.data().address
+          addressRef.push(address)
+          updateDoc(doc.ref, {
+            address: addressRef,
+          })
+        })
+      }
+      catch (e) {
+        return e
+      }
+    },
+    async updateAddress(userId: string, address: string[], index: string) {
+      try {
+        const q = query(collection(db, 'users'), where('userId', '==', userId))
+
+        const querySnapshot = await getDocs(q)
+        querySnapshot.forEach((doc) => {
+          const addressRef = doc.data().address
+          addressRef[index] = address
+          updateDoc(doc.ref, {
+            address: addressRef,
+          })
+        })
+      }
+      catch (e) {
+        return e
+      }
+    },
+    async deleteAddress(userId: string, index: string) {
+      try {
+        const q = query(collection(db, 'users'), where('userId', '==', userId))
+        const querySnapshot = await getDocs(q)
+        querySnapshot.forEach((doc) => {
+          const addressRef = doc.data().address[index]
+          updateDoc(doc.ref, {
+            address: arrayRemove(addressRef), // อธิบายตรงนี้ คือ ลบออกจาก array ที่มีค่าเท่ากับ address ที่เรากำหนด
+          })
         })
       }
       catch (e) {

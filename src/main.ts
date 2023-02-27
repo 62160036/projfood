@@ -105,6 +105,7 @@ import TreeSelect from 'primevue/treeselect'
 import TreeTable from 'primevue/treetable'
 import TriStateCheckbox from 'primevue/tristatecheckbox'
 import VirtualScroller from 'primevue/virtualscroller'
+import ConfirmationService from 'primevue/confirmationservice'
 import App from './App.vue'
 import router from './router'
 
@@ -144,6 +145,7 @@ vue.use(plugin, defaultConfig({ plugins: [pro] }))
 vue.use(router)
 vue.use(ToastService)
 vue.use(PrimeVue)
+vue.use(ConfirmationService)
 vue.use(plugin, defaultConfig)
 
 vue.directive('tooltip', Tooltip)

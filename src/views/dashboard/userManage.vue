@@ -104,7 +104,7 @@ function changeRole(uid: any, event: any) {
   const addMessage = httpsCallable(functions, 'setUserRole')
   const data = { uid, role: { admin: event } }
   addMessage(data)
-    .then((result) => {
+    .then(() => {
       showToast('success', 'สำเร็จ', 'เปลี่ยนสิทธิ์ผู้ใช้งานเรียบร้อย', 3000)
     })
     .catch((error) => {

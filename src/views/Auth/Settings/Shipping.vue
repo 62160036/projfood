@@ -50,7 +50,7 @@
                         <label class="font-bold">แก้ไข/ลบ ที่อยู่</label>
                         <div>
                           <Button icon="pi pi-file-edit" class="p-button-rounded p-button-text" @click="openModalEditAddress(index)" />
-                          <Button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" :class="{ hidden: stateAddress.length <= 1 }" @click="deleteAddress(index)" />
+                          <Button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" :class="{ hidden: stateAddress.length <= 1 }" @click="deleteAddress(index, $event)" />
                         </div>
                       </div>
                     </div>
@@ -91,17 +91,17 @@
       </div>
     </div>
   </div>
+  <ConfirmPopup />
   <ModalEditAddress ref="modalEditAddress" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { getAuth } from 'firebase/auth'
-import { arrayRemove, collection, getDocs, query, updateDoc, where } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import ModalEditAddress from './ModalEditAddress.vue'
 import Address from './data/address'
-import db from '@/main'
 import UserData from '@/composables/users'
 
 const dataAddress = Address()
@@ -116,9 +116,9 @@ const events1 = ref([
   { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
   { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' },
 ])
-
+const confirm = useConfirm()
 const auth = getAuth()
-const ind = ref('')
+const indexAd = ref('')
 const toast = useToast()
 const userData = UserData()
 const submitted = ref(false)
@@ -136,27 +136,29 @@ function openModalEditAddress(index: string) {
   modalEditAddress.value.openModal(index)
 }
 
-async function deleteAddress(index: string) {
+async function deleteAddress(index: string, event: { currentTarget: any }) {
   submitted.value = true
-  ind.value = index
+  indexAd.value = index
   const user = auth.currentUser
-
-  if (user) {
-    const q = query(collection(db, 'users'), where('userId', '==', user.uid))
-
-    const querySnapshot = await getDocs(q)
-    querySnapshot.forEach((doc) => {
-      const address = doc.data().address[index]
-      updateDoc(doc.ref, {
-        address: arrayRemove(address), // อธิบายตรงนี้ คือ ลบออกจาก array ที่มีค่าเท่ากับ address ที่เรากำหนด
-      })
-    })
-    showToast('success', 'ลบที่อยู่สำเร็จ', '', 3000)
-    submitted.value = false
-  }
-  else {
-    showToast('error', 'ลบที่อยู่ไม่สำเร็จ', '', 3000)
-  }
+  confirm.require({
+    target: event.currentTarget,
+    message: 'คุณต้องการลบที่อยู่นี้ใช่หรือไม่',
+    icon: 'pi pi-info-circle',
+    acceptClass: 'p-button-danger',
+    accept: () => {
+      if (user) {
+        userData.deleteAddress(user.uid, indexAd.value)
+        showToast('success', 'ลบที่อยู่สำเร็จ', '', 3000)
+        submitted.value = false
+      }
+      else {
+        showToast('error', 'ลบที่อยู่ไม่สำเร็จ', '', 3000)
+      }
+    },
+    // reject: () => {
+    //   showToast('info', 'ยกเลิกการลบที่อยู่', '', 3000)
+    // },
+  })
 }
 
 (() => {

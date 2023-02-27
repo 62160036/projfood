@@ -18,7 +18,7 @@
             <SplitButton :model="menu" class="p-button-raised p-button-text p-button-secondary mb-2">
               <Button>
                 <i class="pi pi-user me-2" />
-                <span class="ml-2 flex align-items-center font-bold">{{ user.firstname }} {{ user.lastname }}</span>
+                <span class="ml-2 flex align-items-center font-bold">{{ userList.firstname }} {{ userList.lastname }}</span>
               </Button>
             </SplitButton>
           </div>
@@ -105,17 +105,16 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
-import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import { useToast } from 'primevue/usetoast'
+import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import HeaderLogo from './HeaderLogo.vue'
 import formatCurrency from '@/plugins/formatCurrency'
 
-import UserData from '@/composables/users'
-import db from '@/main'
 import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
 
 import ProductService from '@/service/ProductService'
 import { useLayout } from '@/layout/composables/layout'
+import db from '@/main'
 
 const items = ref([
   {
@@ -145,16 +144,9 @@ const items = ref([
   },
 ])
 
-const user = ref({
-  email: '',
-  firstname: '',
-  lastname: '',
-  userId: '',
-  role: '',
-})
-
 const isVerified = ref(true)
 const isAdmin = ref(true)
+const userList = ref<any>([])
 
 const menu = computed(() => {
   return [
@@ -240,16 +232,15 @@ const onProductSelect = (event: { data: { name: string } }) => {
   toast.add({ severity: 'info', summary: 'Product Selected', detail: event.data.name, life: 3000 })
 }
 
-const userData = UserData()
 const router = useRouter()
 const isLoggedin = ref(true)
 
-async function readUserData(userId: string) {
+async function getUserById(userId: string) {
   const q = query(collection(db, 'users'), where('userId', '==', userId))
 
   onSnapshot(q, (querySnapshot) => {
     querySnapshot.forEach((doc) => {
-      user.value = {
+      userList.value = {
         email: doc.data().email,
         firstname: doc.data().firstname,
         lastname: doc.data().lastname,
@@ -295,7 +286,7 @@ function handleSignOut() {
         else {
           isVerified.value = false
         }
-        readUserData(auth.currentUser!.uid)
+        getUserById(auth.currentUser!.uid)
         auth.currentUser.getIdTokenResult().then((idTokenResult) => {
           if (idTokenResult.claims.admin)
             isAdmin.value = idTokenResult.claims.admin
