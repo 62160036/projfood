@@ -4,7 +4,7 @@ import db from '@/main'
 export default function UserData() {
   return {
     async getAllUsers() {
-      const result = await fetch('https://asia-southeast1-prjfood-dc319.cloudfunctions.net/app/users')
+      const result = await fetch('https://us-central1-prjfood-dc319.cloudfunctions.net/app/users')
       const data = result.json()
       return data
     },

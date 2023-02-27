@@ -49,7 +49,7 @@ app.get('/users', (req, res) => {
 
 exports.app = functions.https.onRequest(app)
 
-exports.AddUserRole = functions.auth.user().onCreate(
+exports.addUserRole = functions.auth.user().onCreate(
   async (authUser) => {
     if (authUser.email) {
       const customClaims = {

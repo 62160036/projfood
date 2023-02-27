@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "build": "vue-tsc && vite build && firebase deploy",
+    "preview": "vite preview",
+    "update": "ncu --upgrade && npm install"
   },
   "dependencies": {
-    "@formkit/pro": "^1.0.0-alpha.72",
+    "@formkit/pro": "^1.0.0-alpha.75",
     "@formkit/themes": "^1.0.0-beta.15",
     "@formkit/vue": "^1.0.0-beta.15",
     "@popperjs/core": "^2.11.6",
@@ -28,9 +29,9 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.3",
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.14.2",
     "@vitejs/plugin-vue": "^4.0.0",
-    "eslint": "^8.34.0",
+    "eslint": "^8.35.0",
     "sass": "^1.58.3",
     "vite": "^4.1.4",
     "vue-tsc": "^1.2.0"
