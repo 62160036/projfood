@@ -6,6 +6,6 @@
 import Banner from '@/components/Layout/Banner.vue'
 </script>
 
-<style lang="sass" scoped>
+<style lang="scss" scoped>
 
 </style>

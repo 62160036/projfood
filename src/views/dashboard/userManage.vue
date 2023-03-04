@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
-  <div class="userManage">
+  <div class="userManage -mt-5">
     <div class="card">
       <h5>จัดการผู้ใช้งาน</h5>
       <DataTable
@@ -128,12 +128,6 @@ function changeRole(uid: any, event: any) {
 
 <style lang="scss" scoped>
 .userManage {
-  padding: 0 0 0 16rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  justify-content: space-between;
-  transition: margin-left 0.2s;
   .table-header {
     display: flex;
     align-items: center;

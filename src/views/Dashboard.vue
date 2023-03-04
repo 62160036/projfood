@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container-d -mt-5">
+  <div class="-mt-5">
     <div class="grid">
       <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
@@ -297,12 +297,4 @@ const formatCurrency = (value: { toLocaleString: (arg0: string, arg1: { style: s
 </script>
 
 <style lang="scss">
-.main-container-d {
-  padding: 0 0 0 16rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  justify-content: space-between;
-  transition: margin-left 0.2s;
-}
 </style>

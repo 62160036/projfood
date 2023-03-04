@@ -7,7 +7,46 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: () => import('../views/Home.vue'),
+      component: () => import('@/layout/AppIndex.vue'),
+      children: [
+        {
+          path: '/',
+          name: 'Home',
+          component: () => import('@/views/Home.vue'),
+        },
+        {
+          path: 'sign-up',
+          name: 'SignUp',
+          component: () => import('@/views/Auth/index').then(x => x.SignUp),
+          meta: { title: 'PJF - Sign Up' },
+        },
+        {
+          path: '/settings',
+          name: 'Settings',
+          component: () => import('@/views/Auth/Settings/index').then(x => x.Settings),
+          meta: { requiresAuth: true },
+          children: [
+            {
+              path: 'profile',
+              name: 'Profile',
+              component: () => import('@/views/Auth/Settings/index').then(x => x.Profile),
+              meta: { title: 'PJF - Profile' },
+            },
+            {
+              path: 'shipping',
+              name: 'Shipping',
+              component: () => import('@/views/Auth/Settings/index').then(x => x.Shipping),
+              meta: { title: 'PJF - Shipping' },
+            },
+            {
+              path: 'orderHistory',
+              name: 'OrderHistory',
+              component: () => import('@/views/Auth/Settings/index').then(x => x.orderHistory),
+              meta: { title: 'PJF - Order History' },
+            },
+          ],
+        },
+      ],
     },
     {
       path: '/dashboard',
@@ -29,50 +68,19 @@ const router = createRouter({
         },
       ],
     },
-    {
-      path: '/sign-up',
-      name: 'SignUp',
-      component: () => import('../views/Auth/index').then(x => x.SignUp),
-      meta: { title: 'PJF - Sign Up' },
-    },
-    {
-      path: '/settings',
-      name: 'Settings',
-      component: () => import('../views/Auth/Settings/index').then(x => x.Settings),
-      meta: { requiresAuth: true },
-      children: [
-        {
-          path: 'profile',
-          name: 'Profile',
-          component: () => import('../views/Auth/Settings/index').then(x => x.Profile),
-          meta: { title: 'PJF - Profile' },
-        },
-        {
-          path: 'shipping',
-          name: 'Shipping',
-          component: () => import('../views/Auth/Settings/index').then(x => x.Shipping),
-          meta: { title: 'PJF - Shipping' },
-        },
-        {
-          path: 'orderHistory',
-          name: 'OrderHistory',
-          component: () => import('../views/Auth/Settings/index').then(x => x.orderHistory),
-          meta: { title: 'PJF - Order History' },
-        },
-      ],
-    },
+
     // 404 page
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('../views/pages/NotFound.vue'),
+      component: () => import('@/views/pages/NotFound.vue'),
       meta: { title: 'PJF - 404 Not Found' },
     },
     // No Permission
     {
       path: '/access-denied',
       name: 'accessDenied',
-      component: () => import('../views/pages/Access.vue'),
+      component: () => import('@/views/pages/Access.vue'),
       meta: { title: 'PJF - Access Denied' },
     },
     // Test Page

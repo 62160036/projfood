@@ -4,9 +4,12 @@ import db from '@/main'
 export default function UserData() {
   return {
     async getAllUsers() {
-      const result = await fetch('https://us-central1-prjfood-dc319.cloudfunctions.net/app/users')
-      const data = result.json()
-      return data
+      const users: any = []
+      const querySnapshot = await getDocs(collection(db, 'users'))
+      querySnapshot.forEach((doc) => {
+        users.push(doc.data())
+      })
+      return users
     },
     async createUser(userId: string, email: string, firstname: string, lastname: string, phone: string, address: string[]) {
       const docRef = {

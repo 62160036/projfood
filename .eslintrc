@@ -9,9 +9,7 @@
           "script:not([setup])",
           "script[setup]",
           "style:not([scoped])",
-          "style[scoped]",
-          "i18n[locale=en]",
-          "i18n:not([locale=en])"
+          "style[scoped]"
         ]
       }
     ],
