@@ -57,14 +57,20 @@ const router = createRouter({
         {
           path: '/dashboard',
           name: 'Dashboard',
-          component: () => import('@/views/Dashboard.vue'),
+          component: () => import('@/views/dashboard/index').then(x => x.dashboard),
           meta: { title: 'PJF - Dashboard' },
         },
         {
           path: '/user/manage',
           name: 'ManageUser',
-          component: () => import('@/views/dashboard/userManage.vue'),
+          component: () => import('@/views/dashboard/index').then(x => x.userManage),
           meta: { title: 'PJF - Manage User' },
+        },
+        {
+          path: '/product/manage',
+          name: 'ManageProduct',
+          component: () => import('@/views/dashboard/index').then(x => x.productManage),
+          meta: { title: 'PJF - Manage Product' },
         },
       ],
     },

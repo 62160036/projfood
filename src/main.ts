@@ -121,6 +121,7 @@ import router from './router'
 const firebaseConfig = {
   apiKey: 'AIzaSyC22_OTiG3QbF8Sf4VKLOhCMnwq8WLWGH4',
   authDomain: 'prjfood-dc319.firebaseapp.com',
+  databaseURL: 'https://prjfood-dc319-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'prjfood-dc319',
   storageBucket: 'prjfood-dc319.appspot.com',
   messagingSenderId: '457362363488',

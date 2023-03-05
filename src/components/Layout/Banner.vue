@@ -1,10 +1,14 @@
 <template>
-  <Carousel :value="products" :numVisible="3" :numScroll="1" :circular="true" :autoplayInterval="3000" :responsiveOptions="carouselResponsiveOptions">
+  <Carousel :value="productList" :numVisible="3" :numScroll="1" :circular="true" :autoplayInterval="3000" :responsiveOptions="carouselResponsiveOptions">
     <template v-slot:item="product">
       <div class="product-item">
         <div class="product-item-content">
           <div class="mb-3">
-            <img :src="`/demo/images/product/${product.data.image}`" :alt="product.data.name" class="product-image">
+            <img
+              :src="`${product.data.image === 'product-placeholder.svg' ? noImage : product.data.image}`"
+              :alt="product.data.name"
+              class="product-image"
+            >
           </div>
           <div>
             <h4 class="mb-1">
@@ -27,10 +31,27 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import ProductService from '@/service/ProductService'
-import PhotoService from '@/service/PhotoService'
+import { computed, ref } from 'vue'
 import formatCurrency from '@/plugins/formatCurrency'
+import ProductData from '@/composables/products'
+
+interface Product {
+  id: string
+  code: string
+  name: string
+  description: string
+  price: number
+  image: string
+  quantity: number
+  inventoryStatus: string
+  category: string
+}
+
+interface RawData {
+  data: Product[]
+}
+
+const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
 
 const carouselResponsiveOptions = ref([
   {
@@ -50,16 +71,18 @@ const carouselResponsiveOptions = ref([
   },
 ])
 
-const products = ref([])
-const images = ref([])
-
-const productService = new ProductService()
-const photoService = new PhotoService()
-
-onMounted(() => {
-  productService.getProductsSmall().then((data: never[]) => (products.value = data))
-  photoService.getImages().then((data: any) => (images.value = data))
+const productData = ProductData()
+const products = ref<RawData>({
+  data: [],
 })
+const productList = computed(() => products.value.data)
+
+async function getAllProducts() {
+  products.value.data = await productData.getAllProducts()
+}
+(() => {
+  getAllProducts()
+})()
 </script>
 
 <style lang="scss" scoped>
