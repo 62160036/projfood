@@ -7,12 +7,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'FirstPage',
-      component: () => import('@/layout/AppIndex.vue'),
+      component: () => import('@/layout/index').then(x => x.AppIndex),
       children: [
         {
           path: '/',
           name: 'Home',
-          component: () => import('@/views/index').then(x => x.Home),
+          component: () => import('@/views/index').then(x => x.PageIndex),
         },
         {
           path: '/view/:id',
@@ -56,7 +56,7 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: () => import('@/layout/AppLayout.vue'),
+      component: () => import('@/layout/index').then(x => x.AppLayout),
       meta: { requiresAdmin: true },
       children: [
         {
@@ -84,14 +84,14 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('@/views/pages/NotFound.vue'),
+      component: () => import('@/views/pages/index').then(x => x.NotFound),
       meta: { title: 'PJF - 404 Not Found' },
     },
     // No Permission
     {
       path: '/access-denied',
       name: 'accessDenied',
-      component: () => import('@/views/pages/Access.vue'),
+      component: () => import('@/views/pages/index').then(x => x.Access),
       meta: { title: 'PJF - Access Denied' },
     },
 

@@ -1,4 +1,5 @@
 <template>
+  <Banner />
   <div class="card">
     <DataView
       :value="productList" :layout="layout" :paginator="true" :rows="9" :sortOrder="sortOrder"
@@ -8,7 +9,7 @@
         <div class="grid grid-nogutter">
           <div class="col-6" style="text-align: left">
             <Dropdown
-              v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="Sort By Price"
+              v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="เรียงตามราคา"
               @change="onSortChange($event)"
             />
           </div>
@@ -38,7 +39,7 @@
             <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
               <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
               <Button
-                icon="pi pi-shopping-cart" label="Add to Cart"
+                icon="pi pi-shopping-cart" label="เพิ่มลงตะกร้า"
                 :disabled="slotProps.data.inventoryStatus === 'OUTOFSTOCK'"
               />
               <span :class="`product-badge text-center status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{
@@ -89,6 +90,7 @@
 import { computed, ref } from 'vue'
 import ProductData from '@/composables/products'
 import formatCurrency from '@/plugins/formatCurrency'
+import Banner from '@/components/Layout/Banner.vue'
 
 const productData = ProductData()
 
@@ -102,8 +104,8 @@ const sortKey = ref<any>()
 const sortOrder = ref<any>()
 const sortField = ref<any>()
 const sortOptions = ref<any>([
-  { label: 'Price High to Low', value: '!price' },
-  { label: 'Price Low to High', value: 'price' },
+  { label: 'เรียงจากราคาสูงไปต่ำ', value: '!price' },
+  { label: 'เรียงจากราคาต่ำไปสูง', value: 'price' },
 ])
 
 const category = ref([

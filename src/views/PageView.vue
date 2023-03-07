@@ -8,7 +8,7 @@
         <div class="grid grid-nogutter">
           <div class="col-6" style="text-align: left">
             <Dropdown
-              v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="Sort By Price"
+              v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="เรียงตามราคา"
               @change="onSortChange($event)"
             />
           </div>
@@ -114,8 +114,8 @@ const sortKey = ref<any>()
 const sortOrder = ref<any>()
 const sortField = ref<any>()
 const sortOptions = ref<any>([
-  { label: 'Price High to Low', value: '!price' },
-  { label: 'Price Low to High', value: 'price' },
+  { label: 'เรียงจากราคาสูงไปต่ำ', value: '!price' },
+  { label: 'เรียงจากราคาต่ำไปสูง', value: 'price' },
 ])
 
 const category = ref([
