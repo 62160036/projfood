@@ -6,13 +6,18 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Home',
+      name: 'FirstPage',
       component: () => import('@/layout/AppIndex.vue'),
       children: [
         {
           path: '/',
           name: 'Home',
-          component: () => import('@/views/Home.vue'),
+          component: () => import('@/views/index').then(x => x.Home),
+        },
+        {
+          path: '/view/:id',
+          name: 'PageView',
+          component: () => import('@/views/index').then(x => x.PageView),
         },
         {
           path: 'sign-up',
@@ -88,13 +93,6 @@ const router = createRouter({
       name: 'accessDenied',
       component: () => import('@/views/pages/Access.vue'),
       meta: { title: 'PJF - Access Denied' },
-    },
-    // Test Page
-    {
-      path: '/test',
-      name: 'Test',
-      component: () => import('@/views/Test/Test.vue'),
-      meta: { title: 'PJF - Test' },
     },
 
   ],

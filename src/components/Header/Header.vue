@@ -25,7 +25,7 @@
           <div class="flex align-items-center justify-content-center">
             <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" @click="toggleDataTable" />
             <OverlayPanel id="overlay_panel" ref="op2" appendTo="body" :showCloseIcon="true" style="width: 600px">
-              <DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll" @row-select="onProductSelect">
+              <DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll">
                 <Column field="name" header="ชื่อสินค้า" :sortable="true" headerStyle="min-width:12rem;" />
                 <Column header="รูป" headerStyle="min-width:5rem;">
                   <template v-slot:body="slotProps">
@@ -86,7 +86,7 @@
                     </div>
                   </div>
                 </div>
-                <Button label="เพิ่มสินค้า" icon="pi pi-plus" class="col p-button-raised p-button-info w-auto mr-2" />
+                <!-- <Button label="เพิ่มสินค้า" icon="pi pi-plus" class="col p-button-raised p-button-info w-auto mr-2" /> -->
                 <Button label="ชำระเงิน" icon="pi pi-money-bill" class="col p-button-raised p-button-success w-auto" />
               </div>
             </OverlayPanel>
@@ -125,22 +125,22 @@ const items = ref([
   {
     label: 'ผักผลไม้',
     // icon: 'pi pi-fw pi-home',
-    to: '/calendar',
+    to: '/view/FruitsAndVegetables',
   },
   {
     label: 'เนื้อสัตว์แช่แข็ง',
     // icon: 'pi pi-fw pi-pencil',
-    to: '/edit',
+    to: '/view/FrozenMeats',
   },
   {
     label: 'อาหารทะเลแช่แข็ง',
     // icon: 'pi pi-fw pi-file',
-    to: '/documentation',
+    to: '/view/FrozenSeafood',
   },
   {
     label: 'อาหารสำเร็จรูป',
     // icon: 'pi pi-fw pi-cog',
-    // to: '/settings',
+    to: '/view/InstantFood',
   },
 ])
 
@@ -226,10 +226,6 @@ const sumPrice = computed(() => {
 
 const toggleDataTable = (event: any) => {
   op2.value.toggle(event)
-}
-
-const onProductSelect = (event: { data: { name: string } }) => {
-  toast.add({ severity: 'info', summary: 'Product Selected', detail: event.data.name, life: 3000 })
 }
 
 const router = useRouter()

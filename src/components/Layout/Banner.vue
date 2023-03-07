@@ -1,5 +1,8 @@
 <template>
   <Carousel :value="productList" :numVisible="3" :numScroll="1" :circular="true" :autoplayInterval="3000" :responsiveOptions="carouselResponsiveOptions">
+    <template v-slot:header>
+      <h5>สินค้าแนะนำ</h5>
+    </template>
     <template v-slot:item="product">
       <div class="product-item">
         <div class="product-item-content">
@@ -18,11 +21,11 @@
               {{ formatCurrency(product.data.price) }}
             </h6>
             <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">{{ product.data.inventoryStatus }}</span>
-            <!-- <div class="car-buttons mt-5">
-              <Button type="button" class="p-button p-button-rounded mr-2" icon="pi pi-search" />
-              <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
-              <Button type="button" class="p-button-help p-button-rounded" icon="pi pi-cog" />
-            </div> -->
+            <div class="car-buttons mt-5">
+              <Button type="button" class="p-button p-button-rounded" icon="pi pi-search" />
+              <!-- <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
+              <Button type="button" class="p-button-help p-button-rounded" icon="pi pi-cog" /> -->
+            </div>
           </div>
         </div>
       </div>
@@ -44,6 +47,7 @@ interface Product {
   image: string
   quantity: number
   inventoryStatus: string
+  productStatus: string
   category: string
 }
 
@@ -75,7 +79,7 @@ const productData = ProductData()
 const products = ref<RawData>({
   data: [],
 })
-const productList = computed(() => products.value.data)
+const productList = computed(() => products.value.data.filter(product => product.productStatus === 'recommended_product'))
 
 async function getAllProducts() {
   products.value.data = await productData.getAllProducts()
@@ -97,6 +101,7 @@ async function getAllProducts() {
 
     .product-image {
         width: 50%;
+        height: 150px;
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
     }
     .status-instock {

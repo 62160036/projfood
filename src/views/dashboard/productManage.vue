@@ -48,13 +48,26 @@
           </template>
         </Column>
         <Column field="quantity" header="จำนวน" :sortable="true" style="min-width:8rem" />
-        <Column field="category" header="หมวดหมู่" :sortable="true" style="min-width:10rem" />
+        <Column field="category" header="หมวดหมู่" :sortable="true" style="min-width:10rem">
+          <template v-slot:body="slotProps">
+            <div v-for="item, index in category" :key="index">
+              <span>{{ slotProps.data.category === item.value ? item.label : '' }}</span>
+            </div>
+          </template>
+        </Column>
         <Column field="inventoryStatus" header="สถานะ" :sortable="true" style="min-width:12rem">
           <template v-slot:body="slotProps">
             <span
               :class="`product-badge status-${slotProps.data.inventoryStatus ? slotProps.data.inventoryStatus.toLowerCase() : ''}`"
             >{{
               slotProps.data.inventoryStatus }}</span>
+          </template>
+        </Column>
+        <Column field="productStatus" header="สถานะสินค้า" :sortable="true" style="min-width:12rem">
+          <template v-slot:body="slotProps">
+            <div v-for="item, index in status" :key="index">
+              <span>{{ slotProps.data.productStatus === item.value ? item.label : '' }}</span>
+            </div>
           </template>
         </Column>
         <Column :exportable="false" style="min-width:8rem">
@@ -121,6 +134,29 @@
       </div>
 
       <div class="field">
+        <label for="productStatus" class="mb-3">สถานะสินค้า</label>
+        <Dropdown
+          id="productStatus" v-model="product.productStatus" :options="status" optionLabel="label"
+          placeholder="เลือกสถานะ" required="true"
+          :class="{ 'p-invalid': submitted && !product.productStatus }"
+        >
+          <template v-slot:value="slotProps">
+            <div v-if="slotProps.value && slotProps.value.value">
+              <span :class="`product-badge status-${slotProps.value.value}`">{{ slotProps.value.label
+              }}</span>
+            </div>
+            <div v-else-if="slotProps.value && !slotProps.value.value">
+              <span>{{ slotProps.value }}</span>
+            </div>
+            <span v-else>
+              {{ slotProps.placeholder }}
+            </span>
+          </template>
+        </Dropdown>
+        <small v-if="submitted && !product.productStatus" class="p-error">สถานะสินค้าคงคลังจำเป็นต้องระบุ</small>
+      </div>
+
+      <div class="field">
         <label class="mb-3">หมวดหมู่</label>
         <div class="formgrid grid">
           <div class="field-radiobutton col-6">
@@ -136,7 +172,7 @@
             <label for="category3">อาหารทะเลแช่แข็ง</label>
           </div>
           <div class="field-radiobutton col-6">
-            <RadioButton id="category4" v-model="product.category" name="category" value="Delicatessen" :class="{ 'p-invalid': submitted && !product.category }" />
+            <RadioButton id="category4" v-model="product.category" name="category" value="InstantFood" :class="{ 'p-invalid': submitted && !product.category }" />
             <label for="category4">อาหารสำเร็จรูป</label>
           </div>
           <small v-if="submitted && !product.category" class="p-error ml-3">หมวดหมู่สินค้าจำเป็นต้องระบุ</small>
@@ -180,7 +216,7 @@
       </div>
       <template v-slot:footer>
         <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct(product.id)" />
+        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct(product.id, product.image)" />
       </template>
     </Dialog>
 
@@ -214,6 +250,7 @@ interface Product {
   image: string
   quantity: number
   inventoryStatus: string
+  productStatus: string
   category: string
 }
 
@@ -244,6 +281,21 @@ const statuses = ref([
   { label: 'OUTOFSTOCK', value: 'OUTOFSTOCK' },
 ])
 
+const status = ref([
+  { label: 'สินค้าแนะนำ', value: 'recommended_product' },
+  { label: 'สินค้าขายดี', value: 'best_seller' },
+  { label: 'สินค้าใหม่', value: 'new_product' },
+  { label: 'สินค้าลดราคา', value: 'discount_product' },
+  { label: 'สินค้า', value: 'product' },
+])
+
+const category = ref([
+  { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
+  { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
+  { label: 'อาหารทะเลแช่แข็ง', value: 'FrozenSeafood' },
+  { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
+])
+
 async function getAllProducts() {
   products.value.data = await productData.getAllProducts()
 }
@@ -262,16 +314,6 @@ const editProduct = (prod: any) => {
   product.value = { ...prod }
   productDialog.value = true
 }
-const confirmDeleteProduct = (prod: any) => {
-  product.value = prod
-  deleteProductDialog.value = true
-}
-const deleteProduct = (id: string) => {
-  deleteProductDialog.value = false
-  productData.deleteProducts(id)
-  toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
-  getAllProducts()
-}
 
 const createId = () => {
   const id = ref('')
@@ -280,19 +322,6 @@ const createId = () => {
     id.value += chars.charAt(Math.floor(Math.random() * chars.length))
 
   return id
-}
-
-const confirmDeleteSelected = () => {
-  deleteProductsDialog.value = true
-}
-const deleteSelectedProducts = () => {
-  selectedProducts.value.forEach((item: any) => {
-    productData.deleteProducts(item.id)
-  })
-  deleteProductsDialog.value = false
-  selectedProducts.value = null
-  toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
-  getAllProducts()
 }
 
 const fileName = ref('')
@@ -335,14 +364,67 @@ const deleteImage = () => {
   })
 }
 
+const deleteImageOne = (image: string) => {
+  const storage = getStorage()
+
+  const file = image.split('%2F')[1].split('?')[0]
+
+  const imageRef = StorageRef(storage, `products/${file}`)
+  deleteObject(imageRef).then(() => {
+    toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบรูปสินค้าสำเร็จ', life: 3000 })
+  }).catch((error) => {
+    console.log(error)
+  })
+}
+
+const deleteImageMuti = (image: string) => {
+  const storage = getStorage()
+
+  const file = image.split('%2F')[1].split('?')[0]
+
+  const imageRef = StorageRef(storage, `products/${file}`)
+  deleteObject(imageRef).then(() => {
+    toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบรูปสินค้าสำเร็จ', life: 3000 })
+  }).catch((error) => {
+    console.log(error)
+  })
+}
+
+const confirmDeleteProduct = (prod: any) => {
+  product.value = prod
+  deleteProductDialog.value = true
+}
+const deleteProduct = (id: string, image: string) => {
+  deleteProductDialog.value = false
+  productData.deleteProducts(id)
+  deleteImageOne(image)
+  getAllProducts()
+  toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
+}
+
+const confirmDeleteSelected = () => {
+  deleteProductsDialog.value = true
+}
+const deleteSelectedProducts = () => {
+  selectedProducts.value.forEach((item: any) => {
+    productData.deleteProducts(item.id)
+    deleteImageMuti(item.image)
+  })
+  deleteProductsDialog.value = false
+  selectedProducts.value = null
+  getAllProducts()
+  toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
+}
+
 const saveProduct = () => {
   submitted.value = true
 
   if (product.value.name.trim()) {
     if (product.value.id) {
-      product.value.image = fileName.value ? product.value.image : 'product-placeholder.svg'
+      product.value.image = product.value.image ? product.value.image : 'product-placeholder.svg'
       product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus
-      productData.updateProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.category)
+      product.value.productStatus = product.value.productStatus.value ? product.value.productStatus.value : product.value.productStatus
+      productData.updateProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 })
     }
     else {
@@ -350,9 +432,10 @@ const saveProduct = () => {
       product.value.code = createId()
       product.value.image = fileName.value ? product.value.image : 'product-placeholder.svg'
       product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK'
+      product.value.productStatus = product.value.productStatus ? product.value.productStatus.value : 'product'
       product.value.price = product.value.price ? product.value.price : 0
       product.value.quantity = product.value.quantity ? product.value.quantity : 0
-      productData.createProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.category)
+      productData.createProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 })
     }
     getAllProducts()
