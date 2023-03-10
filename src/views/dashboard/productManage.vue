@@ -241,30 +241,14 @@ import { ref as StorageRef, deleteObject, getDownloadURL, getStorage, uploadByte
 import formatCurrency from '@/plugins/formatCurrency'
 import ProductData from '@/composables/products'
 
-interface Product {
-  id: string
-  code: string
-  name: string
-  description: string
-  price: number
-  image: string
-  quantity: number
-  inventoryStatus: string
-  productStatus: string
-  category: string
-}
-
-interface RawData {
-  data: Product[]
-}
-
 const productData = ProductData()
 const toast = useToast()
 const dt = ref()
-const products = ref<RawData>({
+const products = ref<any>({
   data: [],
 })
 const productList = computed(() => products.value.data)
+
 const productDialog = ref(false)
 const deleteProductDialog = ref(false)
 const deleteProductsDialog = ref(false)

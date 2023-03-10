@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
 import { useToast } from 'primevue/usetoast'
@@ -112,7 +112,6 @@ import formatCurrency from '@/plugins/formatCurrency'
 
 import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
 
-import ProductService from '@/service/ProductService'
 import { useLayout } from '@/layout/composables/layout'
 import db from '@/main'
 
@@ -198,12 +197,7 @@ const showError = (summary: string, detail: string, life: number) => {
 const { contextPath } = useLayout()
 const selectedProduct = ref()
 const products = ref()
-const productService = new ProductService()
 const op2 = ref()
-
-onMounted(() => {
-  productService.getProductsSmall().then(data => (products.value = data))
-})
 
 const countCart = computed(() => {
   return products.value?.length

@@ -12,6 +12,7 @@ export default function ProductData() {
       querySnapshot.forEach((doc) => {
         products.data.push(doc.data())
       })
+
       return products.data
     },
     async createProduct(id: string, code: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {

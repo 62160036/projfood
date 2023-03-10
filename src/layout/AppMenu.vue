@@ -22,7 +22,6 @@ const model = ref([
       { label: 'User Manage', icon: 'pi pi-fw pi-id-card', to: '/user/manage' },
       { label: 'Product Manage', icon: 'pi pi-fw pi-shopping-bag', to: '/product/manage' },
       { label: 'Order Manage', icon: 'pi pi-fw pi-list', to: '/order/manage' },
-      { label: 'Category Manage', icon: 'pi pi-fw pi-folder', to: '/category/manage' },
       { label: 'Report Manage', icon: 'pi pi-fw pi-file', to: '/report/manage' },
     ],
   },
