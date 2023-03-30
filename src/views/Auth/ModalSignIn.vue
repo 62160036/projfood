@@ -14,79 +14,71 @@
     </template>
   </Dialog>
   <Dialog v-if="isLogin" v-model:visible="displayModal" header="เข้าสู่ระบบ" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: 'max-content' }" :modal="true">
-    <FormKit
-      type="form"
-      :formClass="submitted ? 'hide' : 'show'"
-      submitLabel="เข้าสู่ระบบ"
-      :actions="false"
-      @submit="handleSubmit"
-    >
-      <div class="mb-2">
-        <label for="email">อีเมล:</label>
-        <FormKit
-          v-model="state.email"
-          type="email"
-          validation="required|email"
-          :validationMessages="{
-            required: 'จำเป็นต้องกรอกอีเมล',
-            email: 'กรุณากรอกอีเมลให้ถูกต้อง',
-          }"
-          prefixIcon="email"
-          validationVisibility="dirty"
-        />
-      </div>
-      <div class="mb-2">
-        <label for="password">รหัสผ่าน:</label>
-        <FormKit
-          v-model="state.password"
-          type="password"
-          name="password"
-          validation="required"
-          :validationMessages="{
-            required: 'จำเป็นต้องกรอกรหัสผ่าน',
-          }"
-          prefixIcon="password"
-          suffixIcon="eyeClosed"
-          validationVisibility="dirty"
-          @suffixIconClick="handleIconClick"
-        />
-      </div>
-      <div class="mb-3">
-        <Button label="ลืมรหัสผ่าน?" class="p-button-text" @click="isLogin = false" />
-      </div>
+    <div class="p-fluid">
+      <Form
+        :validationSchema="schema"
+        @submit="handleSubmit"
+      >
+        <div class="mb-2">
+          <Field v-slot="{ field, errorMessage }" name="email">
+            <label for="email">อีเมล:</label>
+            <InputText
+              v-bind="field"
+              v-model="state.email"
+              aria-describedby="email-help"
+              :class="{ 'p-invalid': errorMessage }"
+            />
+            <small class="p-error">{{ errorMessage }}</small>
+          </Field>
+        </div>
 
-      <Button type="submit" label="เข้าสู่ระบบ" class="p-button-secondary" />
+        <div class="mb-2">
+          <Field v-slot="{ field, errorMessage }" name="password">
+            <label for="password">รหัสผ่าน:</label>
+            <Password
+              v-bind="field"
+              v-model="state.password"
+              :feedback="false"
+              :class="{ 'p-invalid': errorMessage }"
+            />
+            <small class="p-error">{{ errorMessage }}</small>
+          </Field>
+        </div>
 
-      <Button label="ยังไม่มีบัญชีใช่ไหม? ลงทะเบียนเลย" class="p-button-text" @click="goToSignUp" />
-    </FormKit>
+        <div class="mb-3">
+          <Button label="ลืมรหัสผ่าน?" class="p-button-text" @click="isLogin = false" />
+        </div>
+
+        <Button type="submit" label="เข้าสู่ระบบ" class="p-button-secondary" />
+
+        <Button label="ยังไม่มีบัญชีใช่ไหม? ลงทะเบียนเลย" class="p-button-text" @click="goToSignUp" />
+      </Form>
+    </div>
   </Dialog>
   <Dialog v-else v-model:visible="displayModal" header="ลืมรหัสผ่าน" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: 'max-content' }" :modal="true">
-    <FormKit
-      type="form"
-      :formClass="submitted ? 'hide' : 'show'"
-      submitLabel="ลืมรหัสผ่าน"
-      :actions="false"
-      @submit="forgotPassword"
-    >
-      <div class="mb-2">
-        <label for="email">อีเมล:</label>
-        <FormKit
-          v-model="state.email"
-          type="email"
-          validation="required|email"
-          :validationMessages="{
-            required: 'จำเป็นต้องกรอกอีเมล',
-            email: 'กรุณากรอกอีเมลให้ถูกต้อง',
-          }"
-          prefixIcon="email"
-          validationVisibility="dirty"
-        />
-      </div>
-      <div class="mb-3">
+    <div class="p-fluid">
+      <Form
+        :validationSchema="schema"
+        @submit="forgotPassword"
+      >
+        <div class="mb-2">
+          <Field v-slot="{ field, errorMessage }" name="email">
+            <label for="email">อีเมล:</label>
+            <InputText
+              v-bind="field"
+              v-model="state.email"
+              aria-describedby="email-help"
+              :class="{ 'p-invalid': errorMessage }"
+            />
+            <small class="p-error">{{ errorMessage }}</small>
+          </Field>
+        </div>
+
         <Button label="เข้าสู่ระบบ" class="mt-2 p-button-danger" @click="isLogin = true" />
-        <Button v-tooltip="'Click to proceed'" type="submit" label="ส่งอีเมลรีเซ็ตรหัสผ่าน" class="mt-2 p-button-secondary" />
-      </div>
-    </FormKit>
+
+        <Button type="submit" label="ส่งอีเมลรีเซ็ตรหัสผ่าน" class="mt-2 p-button-secondary" />
+      </Form>
+    </div>
   </Dialog>
   <Toast position="bottom-left" />
 </template>
@@ -95,6 +87,8 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { Field, Form } from 'vee-validate'
+import * as yup from 'yup'
 import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from '@firebase/auth'
 
 interface signInState {
@@ -116,6 +110,11 @@ const resetForm = () => {
   state.password = ''
   submitted.value = false
 }
+
+const schema = yup.object({
+  email: yup.string().required().email().label('Email address'),
+  password: yup.string().required().min(6).label('Password'),
+})
 
 const displayModal = ref(false)
 const showMessage = ref(false)
@@ -174,11 +173,6 @@ const forgotPassword = () => {
         showError(errorCode, errorMessage, 3000)
       })
   }
-}
-
-const handleIconClick = (node: any) => {
-  node.props.suffixIcon = node.props.suffixIcon === 'eye' ? 'eyeClosed' : 'eye'
-  node.props.type = node.props.type === 'password' ? 'text' : 'password'
 }
 
 function goToSignUp() {

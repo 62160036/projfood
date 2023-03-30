@@ -63,7 +63,7 @@
             <div class="product-grid-item-content">
               <img
                 :src="`${slotProps.data.image === 'product-placeholder.svg' ? noImage : slotProps.data.image}`" class="product-image"
-                :alt="slotProps.data.name"
+                :alt="slotProps.data.name" @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)"
               >
               <div class="product-name">
                 {{ slotProps.data.name }}
@@ -226,6 +226,7 @@ async function getAllProducts() {
           .product-image {
               width: 60%;
               height: 150px;
+              cursor: pointer;
           }
       }
 

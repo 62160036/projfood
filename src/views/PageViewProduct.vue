@@ -1,88 +1,20 @@
 <template>
   <div class="card">
-    <DataView
-      :value="productList" :layout="layout" :paginator="true" :rows="9" :sortOrder="sortOrder"
-      :sortField="sortField" dataKey="id"
-    >
-      <template v-slot:header>
-        <div class="grid grid-nogutter">
-          <div class="col-6" style="text-align: left">
-            <Dropdown
-              v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="เรียงตามราคา"
-              @change="onSortChange($event)"
-            />
-          </div>
-          <div class="col-6" style="text-align: right">
-            <DataViewLayoutOptions v-model="layout" />
-          </div>
-        </div>
-      </template>
-
-      <template v-slot:list="slotProps">
-        <div class="col-12">
-          <div class="product-list-item">
-            <img
-              :src="`${slotProps.data.image === 'product-placeholder.svg' ? noImage : slotProps.data.image}`"
-              :alt="slotProps.data.name"
-            >
-            <div class="product-list-detail">
-              <div class="product-name">
-                {{ slotProps.data.name }}
-              </div>
-              <div class="product-description">
-                {{ slotProps.data.description }}
-              </div>
-              <i class="pi pi-tag product-category-icon" />
-              <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
-            </div>
-            <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-              <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
-              <Button
-                icon="pi pi-shopping-cart" label="เพิ่มลงตะกร้า"
-                :disabled="slotProps.data.inventoryStatus === 'OUTOFSTOCK'"
-              />
-              <span :class="`product-badge text-center status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{
-                slotProps.data.inventoryStatus }}</span>
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <template v-slot:grid="slotProps">
-        <div class="col-12 md:col-4">
-          <div class="product-grid-item card">
-            <div class="product-grid-item-top">
-              <div>
-                <i class="pi pi-tag product-category-icon" />
-                <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
-              </div>
-              <span :class="`product-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{
-                slotProps.data.inventoryStatus }}</span>
-            </div>
-            <div class="product-grid-item-content">
-              <img
-                :src="`${slotProps.data.image === 'product-placeholder.svg' ? noImage : slotProps.data.image}`" class="product-image"
-                :alt="slotProps.data.name"
-                @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)"
-              >
-              <div class="product-name">
-                {{ slotProps.data.name }}
-              </div>
-              <div class="product-description">
-                {{ slotProps.data.description }}
-              </div>
-            </div>
-            <div class="product-grid-item-bottom">
-              <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
-              <Button
-                icon="pi pi-shopping-cart"
-                :disabled="slotProps.data.inventoryStatus === 'OUTOFSTOCK'"
-              />
-            </div>
-          </div>
-        </div>
-      </template>
-    </DataView>
+    <div v-for="(item, inx) in productList" :key="inx">
+      {{ item.name }}
+      <br>
+      {{ item.price }} บาท
+      <br>
+      {{ item.description }}
+      <br>
+      {{ item.category }}
+      <br>
+      {{ item.inventoryStatus }}
+      <br>
+      <Image :src="`${item.image === 'product-placeholder.svg' ? noImage : item.image}`" alt="Image" width="250" preview />
+      <br>
+      <hr>
+    </div>
   </div>
 </template>
 
@@ -90,19 +22,18 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ProductData from '@/composables/products'
-import formatCurrency from '@/plugins/formatCurrency'
 
 const route = useRoute()
 const routeID = ref()
 const productData = ProductData()
 
 function getRouteId() {
-  routeID.value = route.params.id
+  routeID.value = route.params.name
 }
 const products = ref<any>({
   data: [],
 })
-const productList = computed(() => products.value.data.filter((item: any) => item.category === routeID.value))
+const productList = computed(() => products.value.data.filter((item: any) => item.id === routeID.value))
 
 watch(() => route.params.id, () => {
   getAllProducts()
@@ -238,7 +169,6 @@ async function getAllProducts() {
         .product-image {
             width: 60%;
             height: 150px;
-            cursor: pointer;
         }
     }
 

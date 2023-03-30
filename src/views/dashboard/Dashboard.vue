@@ -252,8 +252,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import ProductService from '@/service/ProductService'
+import { reactive, ref } from 'vue'
 import { useLayout } from '@/layout/composables/layout'
 
 const { contextPath } = useLayout()
@@ -280,16 +279,8 @@ const lineData = reactive({
     },
   ],
 })
-const items = ref([
-  { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-  { label: 'Remove', icon: 'pi pi-fw pi-minus' },
-])
-const lineOptions = ref<any>(null)
-const productService = new ProductService()
 
-onMounted(() => {
-  productService.getProductsSmall().then(data => (products.value = data))
-})
+const lineOptions = ref<any>(null)
 
 const formatCurrency = (value: { toLocaleString: (arg0: string, arg1: { style: string; currency: string }) => any }) => {
   return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })

@@ -1,72 +1,75 @@
 <template>
   <Dialog v-model:visible="displayModal" :header="`${isCreate ? 'เพิ่มที่อยู่ใหม่' : 'แก้ไขที่อยู่'}`" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '50vw' }" :modal="true">
-    <div class="m-2 mx-4">
-      <FormKit
-        type="form"
-        :formClass="submitted ? 'hide' : 'show'"
-        :actions="false"
+    <div class="p-fluid m-2 mx-4">
+      <Form
+        :validationSchema="schema"
+        :initialValues="state"
         @submit="updateAddress"
       >
         <div class="flex">
           <div class="col">
             <div class="field">
-              <label for="phone">ที่อยู่</label>
-              <FormKit
-                v-model="state.address_info"
-                type="text"
-                validation="required"
-                :validationMessages="{
-                  required: 'จำเป็นต้องกรอกที่อยู่',
-                }"
-              />
+              <Field v-slot="{ field, errorMessage }" name="address_info">
+                <label for="address_info">ที่อยู่<span class="text-red-500">*</span></label>
+                <InputText
+                  v-model="state.address_info"
+                  v-bind="field"
+                  aria-describedby="address-help"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
             <div class="grid">
               <div class="field col">
-                <label for="phone">ตำบล</label>
-                <FormKit
-                  v-model="state.sub_district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกตำบล',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="sub_district">
+                  <label for="sub_district">ตำบล<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-model="state.sub_district"
+                    v-bind="field"
+                    aria-describedby="sub_district-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
               <div class="field col">
-                <label for="email">อำเภอ</label>
-                <FormKit
-                  v-model="state.district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกอำเภอ',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="district">
+                  <label for="district">อำเภอ<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-model="state.district"
+                    v-bind="field"
+                    aria-describedby="district-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
             </div>
             <div class="grid">
               <div class="field col">
-                <label for="phone">จังหวัด</label>
-                <FormKit
-                  v-model="state.province"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกจังหวัด',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="province">
+                  <label for="province">จังหวัด<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-model="state.province"
+                    v-bind="field"
+                    aria-describedby="province-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
               <div class="field col">
-                <label for="email">รหัสไปรษณีย์</label>
-                <FormKit
-                  v-model="state.zip"
-                  type="text"
-                  validation="required|matches:/[0-9]/"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกรหัสไปรษณีย์',
-                    matches: 'รหัสไปรษณีย์ต้องเป็นตัวเลขเท่านั้น',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="zip">
+                  <label for="zip">รหัสไปรษณีย์<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-model="state.zip"
+                    v-bind="field"
+                    aria-describedby="zip-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
             </div>
           </div>
@@ -74,7 +77,7 @@
         <div class="flex justify-content-center align-items-center font-bold mt-1rem">
           <Button type="submit" label="บันทึกการเปลี่่ยนแปลง" icon="pi pi-user-edit" class="p-button-success" />
         </div>
-      </FormKit>
+      </Form>
     </div>
   </Dialog>
 </template>
@@ -85,6 +88,8 @@ import { getAuth } from 'firebase/auth'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
+import { Field, Form } from 'vee-validate'
+import * as yup from 'yup'
 import db from '@/main'
 import UserData from '@/composables/users'
 
@@ -102,6 +107,14 @@ const state = ref<AddressState>({
   district: '',
   province: '',
   zip: '',
+})
+
+const schema = yup.object({
+  address_info: yup.string().required().label('Address Info'),
+  sub_district: yup.string().required().label('Sub District'),
+  district: yup.string().required().label('District'),
+  province: yup.string().required().label('Province'),
+  zip: yup.string().required().label('Zip'),
 })
 
 const isCreate = ref(false)

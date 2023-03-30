@@ -22,179 +22,162 @@
     </template>
     <template v-slot:content>
       <div class="p-fluid">
-        <FormKit
-          type="form"
-          :formClass="submitted ? 'hide' : 'show'"
-          submitLabel="สมัครสมาชิก"
-          :actions="false"
-          @submit="handleSubmit"
+        <Form
+          :validationSchema="schema"
+          @submit="onSubmit"
         >
           <div class="flex">
             <div class="col mb-2">
-              <label for="email">อีเมล<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.email"
-                help="กดปุ่มไอคอนเพื่อตรวจสอบว่ามีอีเมลนี้ในระบบหรือไม่"
-                type="email"
-                validation="required|email"
-                :validationMessages="{
-                  required: 'จำเป็นต้องกรอกอีเมล',
-                  email: 'กรุณากรอกอีเมลให้ถูกต้อง',
-                }"
-                prefixIcon="email"
-                suffixIcon="check"
-                validationVisibility="dirty"
-                @suffixIconClick="checkDuplicateEmail"
-              />
+              <Field v-slot="{ field, errorMessage }" name="email">
+                <label for="email">อีเมล<span class="text-red-500">*</span></label>
+                <InputText
+                  v-bind="field"
+                  v-model="state.email"
+                  aria-describedby="email-help"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
             <div class="col mb-2">
-              <label for="phone">เบอร์โทรศัพท์<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.phone"
-                type="mask"
-                name="phone"
-                mode="select"
-                mask="0##-###-####"
-                :tokens="{
-                  '#': {
-                    selectFill: '0',
-                  },
-                }"
-                validation="required|matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
-                :validationMessages="{
-                  matches: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง ตามรูปแบบ xxx-xxx-xxxx',
-                  required: 'จำเป็นต้องกรอกเบอร์โทรศัพท์',
-                }"
-                prefixIcon="telephone"
-                validationVisibility="dirty"
-              />
+              <Field v-slot="{ field, errorMessage }" name="phone">
+                <label for="phone">เบอร์โทรศัพท์<span class="text-red-500">*</span></label>
+                <InputMask
+                  v-bind="field"
+                  v-model="state.phone"
+                  mask="999-999-9999"
+                  placeholder="999-999-9999"
+                  :class="{ 'p-invalid': errorMessage }"
+                  aria-describedby="mask-error"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
           </div>
+
           <div class="flex">
             <div class="col mb-2">
-              <label for="password">รหัสผ่าน<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.password"
-                type="password"
-                name="password"
-                validation="required|length:8|matches:/[^a-zA-Z]/"
-                :validationMessages="{
-                  matches: 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว ตัวอักษรพิเศษเช่น !@#$%^&*()_+',
-                  required: 'จำเป็นต้องกรอกรหัสผ่าน',
-                  length: 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร',
-                }"
-                prefixIcon="password"
-                suffixIcon="eyeClosed"
-                @suffixIconClick="handleIconClick"
-              />
+              <Field v-slot="{ field, errorMessage }" name="firstname">
+                <label for="firstname">ชื่อ<span class="text-red-500">*</span></label>
+                <InputText
+                  v-bind="field"
+                  v-model="state.firstname"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
             <div class="col mb-2">
-              <label for="password_confirm">ยืนยันรหัสผ่าน<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.confirmPassword"
-                type="password"
-                name="password_confirm"
-                validation="required|confirm"
-                :validationMessages="{
-                  required: 'จำเป็นต้องกรอกยืนยันรหัสผ่าน',
-                  confirm: 'รหัสผ่านไม่ตรงกัน',
-                }"
-                prefixIcon="password"
-                suffixIcon="eyeClosed"
-                @suffixIconClick="handleIconClick"
-              />
+              <Field v-slot="{ field, errorMessage }" name="lastname">
+                <label for="lastname">นามสกุล<span class="text-red-500">*</span></label>
+                <InputText
+                  v-bind="field"
+                  v-model="state.lastname"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
           </div>
+
           <div class="flex">
             <div class="col mb-2">
-              <label for="firstname">ชื่อ<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.firstname"
-                type="text"
-                validation="required"
-                :validationMessages="{
-                  required: 'จำเป็นต้องกรอกชื่อ',
-                }"
-              />
+              <Field v-slot="{ field, errorMessage }" name="password">
+                <label for="password">รหัสผ่าน<span class="text-red-500">*</span></label>
+                <Password
+                  v-bind="field"
+                  v-model="state.password"
+                  aria-describedby="password-help"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
             <div class="col mb-2">
-              <label for="lastname">นามสกุล<span class="text-red-500">*</span></label>
-              <FormKit
-                v-model="state.lastname"
-                type="text"
-                validation="required"
-                :validationMessages="{
-                  required: 'จำเป็นต้องกรอกนามสกุล',
-                }"
-              />
+              <Field v-slot="{ field, errorMessage }" name="confirmPassword">
+                <label for="password">ยืนยันรหัสผ่าน<span class="text-red-500">*</span></label>
+                <Password
+                  v-bind="field"
+                  v-model="state.confirmPassword"
+                  aria-describedby="password-help"
+                  :class="{ 'p-invalid': errorMessage }"
+                />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
             </div>
           </div>
+
           <div v-for="item, index in state.address" :key="index" class="row">
-            <div class="flex">
-              <div class="col mb-2">
-                <label for="address">ที่อยู่<span class="text-red-500">*</span></label>
-                <FormKit
+            <div class="col mb-2">
+              <Field v-slot="{ field, errorMessage }" name="address_info">
+                <label for="address_info">ที่อยู่<span class="text-red-500">*</span></label>
+                <InputText
+                  v-bind="field"
                   v-model="item.address_info"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกที่อยู่',
-                  }"
+                  aria-describedby="address-help"
+                  :class="{ 'p-invalid': errorMessage }"
                 />
+                <small class="p-error">{{ errorMessage }}</small>
+              </Field>
+            </div>
+            <div class="flex">
+              <div class="col mb-2">
+                <Field v-slot="{ field, errorMessage }" name="sub_district">
+                  <label for="sub_district">ตำบล<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-bind="field"
+                    v-model="item.sub_district"
+                    aria-describedby="sub_district-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
+              </div>
+              <div class="col mb-2">
+                <Field v-slot="{ field, errorMessage }" name="district">
+                  <label for="district">อำเภอ<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-bind="field"
+                    v-model="item.district"
+                    aria-describedby="district-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
             </div>
             <div class="flex">
               <div class="col mb-2">
-                <label for="sub_district">ตำบล<span class="text-red-500">*</span></label>
-                <FormKit
-                  v-model="item.sub_district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกตำบล',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="province">
+                  <label for="province">จังหวัด<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-bind="field"
+                    v-model="item.province"
+                    aria-describedby="province-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
               <div class="col mb-2">
-                <label for="district">อำเภอ<span class="text-red-500">*</span></label>
-                <FormKit
-                  v-model="item.district"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกอำเภอ',
-                  }"
-                />
-              </div>
-            </div>
-            <div class="flex">
-              <div class="col mb-2">
-                <label for="province">จังหวัด<span class="text-red-500">*</span></label>
-                <FormKit
-                  v-model="item.province"
-                  type="text"
-                  validation="required"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกจังหวัด',
-                  }"
-                />
-              </div>
-              <div class="col mb-2">
-                <label for="zip">รหัสไปรษณีย์<span class="text-red-500">*</span></label>
-                <FormKit
-                  v-model="item.zip"
-                  type="text"
-                  validation="required|matches:/[0-9]/"
-                  :validationMessages="{
-                    required: 'จำเป็นต้องกรอกรหัสไปรษณีย์',
-                    matches: 'รหัสไปรษณีย์ต้องเป็นตัวเลขเท่านั้น',
-                  }"
-                />
+                <Field v-slot="{ field, errorMessage }" name="zip">
+                  <label for="zip">รหัสไปรษณีย์<span class="text-red-500">*</span></label>
+                  <InputText
+                    v-bind="field"
+                    v-model="item.zip"
+                    aria-describedby="zip-help"
+                    :class="{ 'p-invalid': errorMessage }"
+                  />
+                  <small class="p-error">{{ errorMessage }}</small>
+                </Field>
               </div>
             </div>
           </div>
-          <Button type="submit" label="สมัครสมาชิก" class="mt-2 p-button-secondary" />
-        </FormKit>
+
+          <div class="footer">
+            <Button label="สมัครสมาชิก" type="submit" />
+          </div>
+        </Form>
       </div>
     </template>
   </Card>
@@ -205,8 +188,10 @@
 import { reactive, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth'
 import { collection, getDocs, query, where } from '@firebase/firestore'
+import { Field, Form } from 'vee-validate'
+import * as yup from 'yup'
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from '@firebase/auth'
 import UserData from '@/composables/users'
 import db from '@/main'
 
@@ -273,31 +258,31 @@ const resetForm = () => {
 const router = useRouter()
 const toast = useToast()
 
+const schema = yup.object({
+  email: yup.string().required().email().label('Email address')
+    .test('is-duplicate-email', 'Email already exists', async (value) => {
+      const q = query(collection(db, 'users'), where('email', '==', value))
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.empty
+    }),
+  password: yup.string().required().min(6).label('Password'),
+  confirmPassword: yup
+    .string()
+    .required()
+    .label('Confirm Password')
+    .oneOf([yup.ref('password')], 'Passwords do not match'),
+  firstname: yup.string().required().label('Firstname'),
+  lastname: yup.string().required().label('Lastname'),
+  phone: yup.string().required().label('Phone'),
+  address_info: yup.string().required().label('Address Info'),
+  sub_district: yup.string().required().label('Sub District'),
+  district: yup.string().required().label('District'),
+  province: yup.string().required().label('Province'),
+  zip: yup.string().required().label('Zip'),
+})
+
 const showToast = (severity: string, summary: string, detail: string, life: number) => {
   toast.add({ severity, summary, detail, life })
-}
-
-const handleIconClick = (node: any) => {
-  node.props.suffixIcon = node.props.suffixIcon === 'eye' ? 'eyeClosed' : 'eye'
-  node.props.type = node.props.type === 'password' ? 'text' : 'password'
-}
-
-const checkDuplicateEmail = async (node: any) => {
-  const q = query(collection(db, 'users'), where('email', '==', state.email))
-  const email = ref('')
-  const querySnapshot = await getDocs(q)
-  querySnapshot.forEach((doc) => {
-    email.value = doc.data().email
-  })
-
-  if (state.email === email.value && state.email !== '') {
-    node.props.suffixIcon = node.props.suffixIcon === 'check' ? 'check' : 'check'
-    showToast('error', 'Error Message', 'อีเมลนี้มีผู้ใช้งานแล้ว', 3000)
-  }
-  else if (state.email !== email.value && state.email !== '') {
-    node.props.suffixIcon = node.props.suffixIcon === 'check' ? 'check' : 'check'
-    showToast('success', 'Success Message', 'อีเมลนี้สามารถใช้งานได้', 3000)
-  }
 }
 
 const toggleDialog = () => {
@@ -309,7 +294,7 @@ const toggleDialog = () => {
   }
 }
 
-async function handleSubmit() {
+async function onSubmit() {
   submitted.value = true
   const auth = getAuth()
   createUserWithEmailAndPassword(auth, state.email, state.password)

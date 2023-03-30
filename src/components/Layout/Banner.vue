@@ -11,6 +11,7 @@
               :src="`${product.data.image === 'product-placeholder.svg' ? noImage : product.data.image}`"
               :alt="product.data.name"
               class="product-image"
+              @click="() => $router.push(`/view/${product.data.category}/${product.data.id}`)"
             >
           </div>
           <div>
@@ -22,7 +23,7 @@
             </h6>
             <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">{{ product.data.inventoryStatus }}</span>
             <div class="car-buttons mt-5">
-              <Button type="button" class="p-button p-button-rounded" icon="pi pi-search" />
+              <Button type="button" class="p-button p-button-rounded" icon="pi pi-search" @click="() => $router.push(`/view/${product.data.category}/${product.data.id}`)" />
               <!-- <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
               <Button type="button" class="p-button-help p-button-rounded" icon="pi pi-cog" /> -->
             </div>
@@ -84,6 +85,7 @@ const productList = computed(() => products.value.data.filter(product => product
 async function getAllProducts() {
   products.value.data = await productData.getAllProducts()
 }
+
 (() => {
   getAllProducts()
 })()
@@ -102,7 +104,8 @@ async function getAllProducts() {
     .product-image {
         width: 50%;
         height: 150px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        cursor: pointer;
     }
     .status-instock {
         background-color: #4caf50;

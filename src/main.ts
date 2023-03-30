@@ -5,10 +5,7 @@ import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
 import { getFunctions } from 'firebase/functions'
-import { defaultConfig, plugin } from '@formkit/vue'
-import { createProPlugin, inputs } from '@formkit/pro'
-import '@formkit/themes/genesis'
-import '@formkit/pro/genesis'
+
 import '@/assets/styles.scss'
 
 import AutoComplete from 'primevue/autocomplete'
@@ -140,14 +137,10 @@ export { functions }
 
 const vue = createApp(App)
 
-const pro = createProPlugin('fk-909ffd77bc7', inputs)
-vue.use(plugin, defaultConfig({ plugins: [pro] }))
-
 vue.use(router)
 vue.use(ToastService)
 vue.use(PrimeVue)
 vue.use(ConfirmationService)
-vue.use(plugin, defaultConfig)
 
 vue.directive('tooltip', Tooltip)
 vue.directive('badge', BadgeDirective)

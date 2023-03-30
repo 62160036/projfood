@@ -20,6 +20,11 @@ const router = createRouter({
           component: () => import('@/views/index').then(x => x.PageView),
         },
         {
+          path: '/view/:id/:name',
+          name: 'PageViewName',
+          component: () => import('@/views/index').then(x => x.PageViewProduct),
+        },
+        {
           path: 'sign-up',
           name: 'SignUp',
           component: () => import('@/views/Auth/index').then(x => x.SignUp),
