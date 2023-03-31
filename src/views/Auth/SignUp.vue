@@ -236,7 +236,7 @@ const state = reactive<RegisterState>({
 const submitted = ref(false)
 const showMessage = ref(false)
 
-const resetForm = () => {
+function resetForm() {
   state.email = ''
   state.password = ''
   state.confirmPassword = ''
@@ -281,11 +281,11 @@ const schema = yup.object({
   zip: yup.string().required().label('Zip'),
 })
 
-const showToast = (severity: string, summary: string, detail: string, life: number) => {
+function showToast(severity: string, summary: string, detail: string, life: number) {
   toast.add({ severity, summary, detail, life })
 }
 
-const toggleDialog = () => {
+function toggleDialog() {
   showMessage.value = !showMessage.value
 
   if (!showMessage.value) {

@@ -125,7 +125,7 @@ const displayModal = ref(false)
 const indexAd = ref('')
 const submitted = ref(false)
 const toast = useToast()
-const showToast = (severity: string, summary: string, detail: string, life: number) => {
+function showToast(severity: string, summary: string, detail: string, life: number) {
   toast.add({ severity, summary, detail, life })
 }
 
@@ -158,7 +158,7 @@ async function getAddress(curIndex: string) {
   })
 }
 
-const resetForm = () => {
+function resetForm() {
   state.value = {
     address_info: '',
     sub_district: '',

@@ -25,25 +25,27 @@
             <img
               :src="`${slotProps.data.image === 'product-placeholder.svg' ? noImage : slotProps.data.image}`"
               :alt="slotProps.data.name"
+              @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)"
             >
             <div class="product-list-detail">
-              <div class="product-name">
+              <div class="product-name" @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)">
                 {{ slotProps.data.name }}
               </div>
-              <div class="product-description">
+              <!-- <div class="product-description">
                 {{ slotProps.data.description }}
-              </div>
+              </div> -->
               <i class="pi pi-tag product-category-icon" />
               <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
             </div>
             <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
               <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
-              <Button
+              <!-- <Button
                 icon="pi pi-shopping-cart" label="เพิ่มลงตะกร้า"
                 :disabled="slotProps.data.inventoryStatus === 'OUTOFSTOCK'"
-              />
-              <span :class="`product-badge text-center status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{
-                slotProps.data.inventoryStatus }}</span>
+              /> -->
+              <span :class="`product-badge text-center status-${slotProps.data.inventoryStatus.toLowerCase()}`">
+                {{ statuses.filter((item: any) => item.value === slotProps.data.inventoryStatus)[0].label }}
+              </span>
             </div>
           </div>
         </div>
@@ -57,27 +59,28 @@
                 <i class="pi pi-tag product-category-icon" />
                 <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
               </div>
-              <span :class="`product-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">{{
-                slotProps.data.inventoryStatus }}</span>
+              <span :class="`product-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">
+                {{ statuses.filter((item: any) => item.value === slotProps.data.inventoryStatus)[0].label }}
+              </span>
             </div>
             <div class="product-grid-item-content">
               <img
                 :src="`${slotProps.data.image === 'product-placeholder.svg' ? noImage : slotProps.data.image}`" class="product-image"
                 :alt="slotProps.data.name" @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)"
               >
-              <div class="product-name">
+              <div class="product-name" @click="() => $router.push(`/view/${slotProps.data.category}/${slotProps.data.id}`)">
                 {{ slotProps.data.name }}
               </div>
-              <div class="product-description">
+              <!-- <div class="product-description">
                 {{ slotProps.data.description }}
-              </div>
+              </div> -->
             </div>
             <div class="product-grid-item-bottom">
               <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
-              <Button
+              <!-- <Button
                 icon="pi pi-shopping-cart"
                 :disabled="slotProps.data.inventoryStatus === 'OUTOFSTOCK'"
-              />
+              /> -->
             </div>
           </div>
         </div>
@@ -108,6 +111,12 @@ const sortOptions = ref<any>([
   { label: 'เรียงจากราคาต่ำไปสูง', value: 'price' },
 ])
 
+const statuses = ref([
+  { label: 'มีสินค้า', value: 'INSTOCK' },
+  { label: 'สินค้ามีน้อย', value: 'LOWSTOCK' },
+  { label: 'สินค้าหมด', value: 'OUTOFSTOCK' },
+])
+
 const category = ref([
   { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
   { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
@@ -115,7 +124,7 @@ const category = ref([
   { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
 ])
 
-const onSortChange = (event: any) => {
+function onSortChange(event: any) {
   const value = event.value.value
   const sortValue = event.value
 
@@ -157,10 +166,16 @@ async function getAllProducts() {
   .product-name {
       font-size: 1.5rem;
       font-weight: 700;
+      cursor: pointer;
   }
 
   .product-description {
       margin: 0 0 1rem 0;
+      max-width: 1000px;
+      word-break: break-all;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
   }
 
   .product-category-icon {
@@ -242,7 +257,7 @@ async function getAllProducts() {
           align-items: center;
 
           img {
-              margin: 2rem 0;
+            margin: 2rem 0;
           }
 
           .product-list-detail {

@@ -57,9 +57,8 @@
   </Dialog>
   <Dialog v-else v-model:visible="displayModal" header="ลืมรหัสผ่าน" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: 'max-content' }" :modal="true">
     <div class="p-fluid">
-      <Form
-        :validationSchema="schema"
-        @submit="forgotPassword"
+      <form
+        @submit.prevent="forgotPassword"
       >
         <div class="mb-2">
           <Field v-slot="{ field, errorMessage }" name="email">
@@ -73,11 +72,9 @@
             <small class="p-error">{{ errorMessage }}</small>
           </Field>
         </div>
-
         <Button label="เข้าสู่ระบบ" class="mt-2 p-button-danger" @click="isLogin = true" />
-
         <Button type="submit" label="ส่งอีเมลรีเซ็ตรหัสผ่าน" class="mt-2 p-button-secondary" />
-      </Form>
+      </form>
     </div>
   </Dialog>
   <Toast position="bottom-left" />
@@ -105,7 +102,7 @@ const state = reactive<signInState>({
 })
 const submitted = ref(false)
 
-const resetForm = () => {
+function resetForm() {
   state.email = ''
   state.password = ''
   submitted.value = false
@@ -119,7 +116,7 @@ const schema = yup.object({
 const displayModal = ref(false)
 const showMessage = ref(false)
 
-const toggleDialog = () => {
+function toggleDialog() {
   showMessage.value = !showMessage.value
 
   if (!showMessage.value) {
@@ -129,14 +126,14 @@ const toggleDialog = () => {
 }
 
 const toast = useToast()
-const showSuccess = (detail: string) => {
+function showSuccess(detail: string) {
   toast.add({ severity: 'success', summary: 'Success Message', detail, life: 3000 })
 }
-const showError = (summary: string, detail: string, life: number) => {
+function showError(summary: string, detail: string, life: number) {
   toast.add({ severity: 'error', summary, detail, life })
 }
 
-const handleSubmit = () => {
+function handleSubmit() {
   submitted.value = true
   const auth = getAuth()
 
@@ -154,7 +151,7 @@ const handleSubmit = () => {
     })
 }
 
-const forgotPassword = () => {
+function forgotPassword() {
   submitted.value = true
   const auth = getAuth()
 

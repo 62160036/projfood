@@ -36,7 +36,7 @@
                 aria-describedby="mask-error"
               />
               <small class="p-error">{{ errorMessage }}</small>
-            </field>
+            </Field>
           </div>
         </div>
         <div class="col-2">
@@ -116,7 +116,7 @@ const router = useRouter()
 const toast = useToast()
 const userData = UserData()
 const submitted = ref(false)
-const showToast = (severity: string, summary: string, detail: string, life: number) => {
+function showToast(severity: string, summary: string, detail: string, life: number) {
   toast.add({ severity, summary, detail, life })
 }
 

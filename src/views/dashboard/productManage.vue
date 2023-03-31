@@ -32,7 +32,7 @@
         </template>
 
         <Column selectionMode="multiple" style="width: 3rem" :exportable="false" />
-        <Column field="code" header="Code" :sortable="true" style="min-width:12rem" />
+        <Column field="id" header="Code" :sortable="true" style="min-width:12rem" />
         <Column field="name" header="ชื่อ" :sortable="true" style="min-width:16rem" />
         <Column header="รูป">
           <template v-slot:body="slotProps">
@@ -105,7 +105,8 @@
       </div>
       <div class="field">
         <label for="description">รายละเอียด</label>
-        <Textarea id="description" v-model="product.description" rows="3" cols="20" :class="{ 'p-invalid': submitted && !product.description }" />
+        <!-- <Textarea id="description" v-model="product.description" rows="3" cols="20" :class="{ 'p-invalid': submitted && !product.description }" /> -->
+        <Editor v-model="product.description" editorStyle="height: 200px" :class="{ 'p-invalid': submitted && !product.description }" />
         <small v-if="submitted && !product.description" class="p-error">รายละเอียดสินค้าจำเป็นต้องระบุ</small>
       </div>
 
@@ -284,22 +285,22 @@ async function getAllProducts() {
   products.value.data = await productData.getAllProducts()
 }
 
-const openNew = () => {
+function openNew() {
   product.value = {}
   submitted.value = false
   productDialog.value = true
 }
-const hideDialog = () => {
+function hideDialog() {
   productDialog.value = false
   submitted.value = false
 }
 
-const editProduct = (prod: any) => {
+function editProduct(prod: any) {
   product.value = { ...prod }
   productDialog.value = true
 }
 
-const createId = () => {
+function createId() {
   const id = ref('')
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   for (let i = 0; i < 5; i++)
@@ -311,7 +312,7 @@ const createId = () => {
 const fileName = ref('')
 const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
 
-const onAdvancedUpload = (e: any) => {
+function onAdvancedUpload(e: any) {
   const storage = getStorage()
 
   const file = e.target.files[0].name
@@ -335,7 +336,7 @@ const onAdvancedUpload = (e: any) => {
 }
 
 // delete image
-const deleteImage = () => {
+function deleteImage() {
   const storage = getStorage()
 
   const file = product.value.image.split('%2F')[1].split('?')[0]
@@ -348,7 +349,7 @@ const deleteImage = () => {
   })
 }
 
-const deleteImageOne = (image: string) => {
+function deleteImageOne(image: string) {
   const storage = getStorage()
 
   const file = image.split('%2F')[1].split('?')[0]
@@ -361,7 +362,7 @@ const deleteImageOne = (image: string) => {
   })
 }
 
-const deleteImageMuti = (image: string) => {
+function deleteImageMuti(image: string) {
   const storage = getStorage()
 
   const file = image.split('%2F')[1].split('?')[0]
@@ -374,11 +375,11 @@ const deleteImageMuti = (image: string) => {
   })
 }
 
-const confirmDeleteProduct = (prod: any) => {
+function confirmDeleteProduct(prod: any) {
   product.value = prod
   deleteProductDialog.value = true
 }
-const deleteProduct = (id: string, image: string) => {
+function deleteProduct(id: string, image: string) {
   deleteProductDialog.value = false
   productData.deleteProducts(id)
   deleteImageOne(image)
@@ -386,10 +387,10 @@ const deleteProduct = (id: string, image: string) => {
   toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
 }
 
-const confirmDeleteSelected = () => {
+function confirmDeleteSelected() {
   deleteProductsDialog.value = true
 }
-const deleteSelectedProducts = () => {
+function deleteSelectedProducts() {
   selectedProducts.value.forEach((item: any) => {
     productData.deleteProducts(item.id)
     deleteImageMuti(item.image)
@@ -400,7 +401,7 @@ const deleteSelectedProducts = () => {
   toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
 }
 
-const saveProduct = () => {
+function saveProduct() {
   submitted.value = true
 
   if (product.value.name.trim()) {

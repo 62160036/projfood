@@ -84,11 +84,11 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 
-const showToast = (severity: string, summary: string, detail: string, life: number) => {
+function showToast(severity: string, summary: string, detail: string, life: number) {
   toast.add({ severity, summary, detail, life })
 }
 
-const onRowEditSave = async (event: { newData: any; index: any }) => {
+async function onRowEditSave(event: { newData: any; index: any }) {
   const { newData, index } = event
 
   usersList.value[index] = await newData

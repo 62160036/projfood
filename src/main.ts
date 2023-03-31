@@ -41,6 +41,7 @@ import Divider from 'primevue/divider'
 import Dock from 'primevue/dock'
 import Dropdown from 'primevue/dropdown'
 import DynamicDialog from 'primevue/dynamicdialog'
+import Editor from 'primevue/editor'
 import Fieldset from 'primevue/fieldset'
 import FileUpload from 'primevue/fileupload'
 import Galleria from 'primevue/galleria'
@@ -184,6 +185,7 @@ vue.component('Divider', Divider)
 vue.component('Dock', Dock)
 vue.component('Dropdown', Dropdown)
 vue.component('DynamicDialog', DynamicDialog)
+vue.component('Editor', Editor)
 // eslint-disable-next-line vue/no-reserved-component-names
 vue.component('Fieldset', Fieldset)
 vue.component('FileUpload', FileUpload)

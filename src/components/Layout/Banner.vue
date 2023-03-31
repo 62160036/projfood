@@ -15,13 +15,15 @@
             >
           </div>
           <div>
-            <h4 class="mb-1">
+            <h4 class="product-name mb-1" @click="() => $router.push(`/view/${product.data.category}/${product.data.id}`)">
               {{ product.data.name }}
             </h4>
             <h6 class="mt-0 mb-3">
               {{ formatCurrency(product.data.price) }}
             </h6>
-            <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">{{ product.data.inventoryStatus }}</span>
+            <span :class="`product-badge status-${product.data.inventoryStatus.toLowerCase()}`">
+              {{ statuses.filter((item: any) => item.value === product.data.inventoryStatus)[0].label }}
+            </span>
             <div class="car-buttons mt-5">
               <Button type="button" class="p-button p-button-rounded" icon="pi pi-search" @click="() => $router.push(`/view/${product.data.category}/${product.data.id}`)" />
               <!-- <Button type="button" class="p-button-success p-button-rounded mr-2" icon="pi pi-star-fill" />
@@ -76,6 +78,12 @@ const carouselResponsiveOptions = ref([
   },
 ])
 
+const statuses = ref([
+  { label: 'มีสินค้า', value: 'INSTOCK' },
+  { label: 'สินค้ามีน้อย', value: 'LOWSTOCK' },
+  { label: 'สินค้าหมด', value: 'OUTOFSTOCK' },
+])
+
 const productData = ProductData()
 const products = ref<RawData>({
   data: [],
@@ -107,6 +115,13 @@ async function getAllProducts() {
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
         cursor: pointer;
     }
+
+    .product-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .status-instock {
         background-color: #4caf50;
     }
@@ -114,7 +129,7 @@ async function getAllProducts() {
         background-color: #ff9800;
     }
     .status-outofstock {
-        background-color: #f44336;
+        background-color: #ffc0bb;
     }
 
 }

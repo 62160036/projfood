@@ -5,9 +5,9 @@
       <div class="grid align-items-center justify-content-center justify-content-start mr-2 ml-2 mb-2">
         <HeaderLogo class="m-4" />
 
-        <form class="col-6 mr-3 mt-2" role="search">
-          <input type="search" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" aria-label="Search">
-        </form>
+        <From class="col-6 mr-3 mt-2">
+          <InputText class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" />
+        </From>
 
         <div v-if="!isLoggedin" class="text-right col-md-12 mt-2" :class="{ 'col-sm': 'col-sm' }">
           <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
@@ -187,10 +187,10 @@ const menu = computed(() => {
 })
 
 const toast = useToast()
-const showSuccess = () => {
+function showSuccess() {
   toast.add({ severity: 'success', summary: 'Success Message', detail: 'ออกจากระบบสำเร็จ', life: 3000 })
 }
-const showError = (summary: string, detail: string, life: number) => {
+function showError(summary: string, detail: string, life: number) {
   toast.add({ severity: 'error', summary, detail, life })
 }
 
@@ -218,7 +218,7 @@ const sumPrice = computed(() => {
   return countAllPrice.value + ShippedCost.value + tax.value
 })
 
-const toggleDataTable = (event: any) => {
+function toggleDataTable(event: any) {
   op2.value.toggle(event)
 }
 

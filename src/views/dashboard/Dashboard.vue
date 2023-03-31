@@ -282,7 +282,7 @@ const lineData = reactive({
 
 const lineOptions = ref<any>(null)
 
-const formatCurrency = (value: { toLocaleString: (arg0: string, arg1: { style: string; currency: string }) => any }) => {
+function formatCurrency(value: { toLocaleString: (arg0: string, arg1: { style: string; currency: string }) => any }) {
   return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 }
 </script>

@@ -122,7 +122,7 @@ const indexAd = ref('')
 const toast = useToast()
 const userData = UserData()
 const submitted = ref(false)
-const showToast = (severity: string, summary: string, detail: string, life: number) => {
+function showToast(severity: string, summary: string, detail: string, life: number) {
   toast.add({ severity, summary, detail, life })
 }
 
