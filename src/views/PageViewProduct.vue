@@ -33,12 +33,12 @@
                 ราคา :
               </div>
               <div class="col p-0">
-                <span class="text-red-500">{{ item.price }}</span> บาท
+                <span class="text-red-500">{{ formatCurrency(item.price) }}</span>
               </div>
               <div class="col-12 text-description">
-                <Editor v-model="item.description" editorStyle="border: none" readonly>
+                <Editor v-model="item.description" readonly>
                   <template v-slot:toolbar>
-                    <span class="ql-formats2">
+                    <span class="ql-formats">
                       รายละเอียด :
                     </span>
                   </template>
@@ -191,7 +191,6 @@ async function getAllProducts() {
 
 .text-description {
     margin: 0 0 1rem 0;
-    // word-break: break-all;
 }
 
 .product-category-icon {
