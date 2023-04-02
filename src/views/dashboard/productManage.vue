@@ -50,7 +50,7 @@
         <Column field="quantity" header="จำนวน" :sortable="true" style="min-width:8rem" />
         <Column field="category" header="หมวดหมู่" :sortable="true" style="min-width:10rem">
           <template v-slot:body="slotProps">
-            <div v-for="item, index in category" :key="index">
+            <div v-for="item, index in categoryList" :key="index">
               <span>{{ slotProps.data.category === item.value ? item.label : '' }}</span>
             </div>
           </template>
@@ -158,6 +158,28 @@
       </div>
 
       <div class="field">
+        <label for="category" class="mb-3">หมวดหมู่</label>
+        <Dropdown
+          id="category" v-model="product.category" :options="categoryList" optionLabel="label"
+          placeholder="เลือกหมวดหมู่" required="true"
+          :class="{ 'p-invalid': submitted && !product.category }"
+        >
+          <template v-slot:value="slotProps">
+            <div v-if="slotProps.value && slotProps.value.value">
+              <span>{{ slotProps.value.label }}</span>
+            </div>
+            <div v-else-if="slotProps.value && !slotProps.value.value">
+              <span>{{ slotProps.value }}</span>
+            </div>
+            <span v-else>
+              {{ slotProps.placeholder }}
+            </span>
+          </template>
+        </Dropdown>
+        <small v-if="submitted && !product.category" class="p-error">หมวดหมู่สินค้าจำเป็นต้องระบุ</small>
+      </div>
+
+      <!-- <div class="field">
         <label class="mb-3">หมวดหมู่</label>
         <div class="formgrid grid">
           <div class="field-radiobutton col-6">
@@ -178,7 +200,7 @@
           </div>
           <small v-if="submitted && !product.category" class="p-error ml-3">หมวดหมู่สินค้าจำเป็นต้องระบุ</small>
         </div>
-      </div>
+      </div> -->
 
       <div class="formgrid grid">
         <div class="field col">
@@ -241,7 +263,9 @@ import { useToast } from 'primevue/usetoast'
 import { ref as StorageRef, deleteObject, getDownloadURL, getStorage, uploadBytes } from 'firebase/storage'
 import formatCurrency from '@/plugins/formatCurrency'
 import ProductData from '@/composables/products'
+import CategoryData from '@/composables/categories'
 
+const categoryData = CategoryData()
 const productData = ProductData()
 const toast = useToast()
 const dt = ref()
@@ -249,6 +273,10 @@ const products = ref<any>({
   data: [],
 })
 const productList = computed(() => products.value.data)
+const categories = ref<any>({
+  data: [],
+})
+const categoryList = computed(() => categories.value.data)
 
 const productDialog = ref(false)
 const deleteProductDialog = ref(false)
@@ -274,15 +302,11 @@ const status = ref([
   { label: 'สินค้า', value: 'product' },
 ])
 
-const category = ref([
-  { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
-  { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
-  { label: 'อาหารทะเลแช่แข็ง', value: 'FrozenSeafood' },
-  { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
-])
-
 async function getAllProducts() {
   products.value.data = await productData.getAllProducts()
+}
+async function getAllCategories() {
+  categories.value.data = await categoryData.getAllCategories()
 }
 
 function openNew() {
@@ -303,8 +327,11 @@ function editProduct(prod: any) {
 function createId() {
   const id = ref('')
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  for (let i = 0; i < 5; i++)
-    id.value += chars.charAt(Math.floor(Math.random() * chars.length))
+  const char = ref('')
+  for (let i = 0; i < 10; i++)
+    char.value += chars.charAt(Math.floor(Math.random() * chars.length))
+
+  id.value = `product_${char.value}`
 
   return id
 }
@@ -384,6 +411,7 @@ function deleteProduct(id: string, image: string) {
   productData.deleteProducts(id)
   deleteImageOne(image)
   getAllProducts()
+  getAllCategories()
   toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
 }
 
@@ -398,6 +426,7 @@ function deleteSelectedProducts() {
   deleteProductsDialog.value = false
   selectedProducts.value = null
   getAllProducts()
+  getAllCategories()
   toast.add({ severity: 'success', summary: 'สำเร็จ', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
 }
 
@@ -408,22 +437,24 @@ function saveProduct() {
     if (product.value.id) {
       product.value.image = product.value.image ? product.value.image : 'product-placeholder.svg'
       product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus
+      product.value.category = product.value.category.value ? product.value.category.value : product.value.category
       product.value.productStatus = product.value.productStatus.value ? product.value.productStatus.value : product.value.productStatus
-      productData.updateProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
+      productData.updateProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 })
     }
     else {
       product.value.id = createId()
-      product.value.code = createId()
       product.value.image = fileName.value ? product.value.image : 'product-placeholder.svg'
       product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK'
       product.value.productStatus = product.value.productStatus ? product.value.productStatus.value : 'product'
+      product.value.category = product.value.category ? product.value.category.value : 'category'
       product.value.price = product.value.price ? product.value.price : 0
       product.value.quantity = product.value.quantity ? product.value.quantity : 0
-      productData.createProduct(product.value.id, product.value.code, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
+      productData.createProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 })
     }
     getAllProducts()
+    getAllCategories()
     productDialog.value = false
     product.value = {}
   }
@@ -431,6 +462,7 @@ function saveProduct() {
 
 (() => {
   getAllProducts()
+  getAllCategories()
 })()
 </script>
 

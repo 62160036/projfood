@@ -13,6 +13,7 @@
           <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
           <Button label="สมัครสมาชิก" icon="pi pi-plus-circle" class="p-button-raised p-button-info" @click="goToSignUp" />
         </div>
+
         <div v-else class="flex flex-wrap">
           <div class="col mt-3">
             <SplitButton :model="menu" class="p-button-raised p-button-text p-button-secondary mb-2">
@@ -22,24 +23,40 @@
               </Button>
             </SplitButton>
           </div>
+
           <div class="flex align-items-center justify-content-center">
             <Button type="button" label="ตะกร้าสินค้า" icon="pi pi-shopping-cart" class="me-3 p-button-raised p-button-warning p-button-info mt-lg-0 mt-md-0 mt-sm-0 mt-2" :badge="countCart" badgeClass="p-badge-danger" :disabled="isVerified" @click="toggleDataTable" />
-            <OverlayPanel id="overlay_panel" ref="op2" appendTo="body" :showCloseIcon="true" style="width: 600px">
-              <DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll">
-                <Column field="name" header="ชื่อสินค้า" :sortable="true" headerStyle="min-width:12rem;" />
-                <Column header="รูป" headerStyle="min-width:5rem;">
+            <OverlayPanel id="overlay_panel" ref="op2" appendTo="body" :showCloseIcon="true" style="width: 900px">
+              <DataTable v-model:selection="selectedProduct" :value="orderList" selectionMode="single" :paginator="true" :rows="5" responsiveLayout="scroll">
+                <Column field="order_id" header="รหัสคำสั่งซื้อ" :sortable="true" headerStyle="min-width:12rem;" />
+                <Column field="product" header="รูป" headerStyle="min-width:5rem;">
                   <template v-slot:body="slotProps">
-                    <img :src="`${contextPath}demo/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" width="50" class="shadow-2">
+                    <img :src="`${slotProps.data.product.image === 'product-placeholder.svg' ? noImage : slotProps.data.product.image}`" :alt="slotProps.data.product.image" width="50" class="shadow-2">
                   </template>
                 </Column>
-                <Column field="price" header="ราคา" :sortable="true" headerStyle="min-width:8rem;">
+                <Column field="product" header="ชื่อสินค้า" headerStyle="min-width:8rem;">
                   <template v-slot:body="slotProps">
-                    {{ formatCurrency(slotProps.data.price) }}
+                    {{ slotProps.data.product.name }}
                   </template>
                 </Column>
-                <Column field="price" header="Action" headerStyle="min-width:8rem;">
-                  <template v-slot:body>
-                    <Button label="ลบสินค้า" icon="pi pi-trash" class="p-button-raised p-button-danger" />
+                <Column field="order_price" header="ราคา" :sortable="true" headerStyle="min-width:8rem;">
+                  <template v-slot:body="slotProps">
+                    {{ formatCurrency(slotProps.data.order_price) }}
+                  </template>
+                </Column>
+                <Column field="quantity" header="จำนวน" :sortable="true" headerStyle="min-width:8rem;">
+                  <template v-slot:body="slotProps">
+                    {{ slotProps.data.quantity }}
+                  </template>
+                </Column>
+                <Column field="total_price" header="ราคารวม" :sortable="true" headerStyle="min-width:8rem;">
+                  <template v-slot:body="slotProps">
+                    {{ formatCurrency(slotProps.data.total_price) }}
+                  </template>
+                </Column>
+                <Column field="order_id" header="Action" headerStyle="min-width:10rem;">
+                  <template v-slot:body="slotProps">
+                    <Button label="ลบสินค้า" icon="pi pi-trash" class="p-button-raised p-button-danger" @click="deleteOrder(slotProps.data.order_id)" />
                   </template>
                 </Column>
               </DataTable>
@@ -86,15 +103,19 @@
                     </div>
                   </div>
                 </div>
-                <!-- <Button label="เพิ่มสินค้า" icon="pi pi-plus" class="col p-button-raised p-button-info w-auto mr-2" /> -->
-                <Button label="ชำระเงิน" icon="pi pi-money-bill" class="col p-button-raised p-button-success w-auto" />
+                <Button
+                  label="ชำระเงิน" icon="pi pi-money-bill"
+                  class="col p-button-raised p-button-success w-auto"
+                  :disabled="orderList.length === 0"
+                  @click="Payment"
+                />
               </div>
             </OverlayPanel>
           </div>
         </div>
       </div>
     </div>
-    <Menubar :model="items" />
+    <Menubar :model="menus" />
   </div>
 
   <ModalSignIn ref="modalSignIn" />
@@ -109,40 +130,42 @@ import { useToast } from 'primevue/usetoast'
 import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import HeaderLogo from './HeaderLogo.vue'
 import formatCurrency from '@/plugins/formatCurrency'
+import CategoryData from '@/composables/categories'
+import OrderData from '@/composables/orders'
 
 import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
 
-import { useLayout } from '@/layout/composables/layout'
 import db from '@/main'
+
+const categoryData = CategoryData()
+const categories = ref<any>({
+  data: [],
+})
+const categoryList = computed(() => categories.value.data)
+async function getAllCategories() {
+  categories.value.data = await categoryData.getAllCategories()
+}
 
 const items = ref([
   {
-    label: 'Home',
+    label: 'หน้าแรก',
     icon: 'pi pi-fw pi-home',
     to: '/',
   },
-  {
-    label: 'ผักผลไม้',
-    // icon: 'pi pi-fw pi-home',
-    to: '/view/FruitsAndVegetables',
-  },
-  {
-    label: 'เนื้อสัตว์แช่แข็ง',
-    // icon: 'pi pi-fw pi-pencil',
-    to: '/view/FrozenMeats',
-  },
-  {
-    label: 'อาหารทะเลแช่แข็ง',
-    // icon: 'pi pi-fw pi-file',
-    to: '/view/FrozenSeafood',
-  },
-  {
-    label: 'อาหารสำเร็จรูป',
-    // icon: 'pi pi-fw pi-cog',
-    to: '/view/InstantFood',
-  },
 ])
 
+const menus = computed(() => {
+  return items.value.concat(
+    categoryList.value.filter((category: any) => category.status === true).map((category: any) => {
+      return {
+        label: category.label,
+        to: `/view/${category.value}`,
+      }
+    }),
+  )
+})
+
+const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
 const isVerified = ref(true)
 const isAdmin = ref(true)
 const userList = ref<any>([])
@@ -194,24 +217,39 @@ function showError(summary: string, detail: string, life: number) {
   toast.add({ severity: 'error', summary, detail, life })
 }
 
-const { contextPath } = useLayout()
 const selectedProduct = ref()
-const products = ref()
 const op2 = ref()
 
-const countCart = computed(() => {
-  return products.value?.length
+const orderData = OrderData()
+const orders = ref<any>({
+  data: [],
 })
 
-const ShippedCost = computed(() => {
-  return 100
+const orderList = computed(() => {
+  return orders.value.data.filter((order: any) => order.order_status === 'waiting_for_payment')
 })
+
+async function getAllOrders() {
+  orders.value.data = await orderData.getAllOrders()
+}
+
+const countCart = computed(() => {
+  return orderList.value.length
+})
+
 const countAllPrice = computed(() => {
-  return products.value?.reduce((a: number, b: { price: number }) => a + b.price, 0)
+  return orderList.value.reduce((a: any, b: any) => a + b.total_price, 0)
 })
 
 const tax = computed(() => {
   return countAllPrice.value * 0.07
+})
+
+const ShippedCost = computed(() => {
+  if (countAllPrice.value > 1000)
+    return 0
+  else
+    return 100
 })
 
 const sumPrice = computed(() => {
@@ -220,6 +258,13 @@ const sumPrice = computed(() => {
 
 function toggleDataTable(event: any) {
   op2.value.toggle(event)
+  getAllOrders()
+}
+
+function deleteOrder(orderId: string) {
+  orderData.deleteOrder(orderId)
+  toast.add({ severity: 'success', summary: 'Success Message', detail: 'ลบสินค้าสำเร็จ', life: 3000 })
+  getAllOrders()
 }
 
 const router = useRouter()
@@ -262,8 +307,14 @@ function handleSignOut() {
   })
 }
 
+function Payment() {
+  router.push('/payment')
+}
+
 (async () => {
   const auth = getAuth()
+  getAllCategories()
+  getAllOrders()
 
   onAuthStateChanged(auth, (user) => {
     if (user) {

@@ -7,7 +7,8 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "update": "ncu --upgrade && npm install"
   },
   "engines": {
     "node": "16"
@@ -15,11 +16,11 @@
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "^11.5.0",
-    "firebase-functions": "^4.2.0"
+    "firebase-functions": "^4.2.1"
   },
   "devDependencies": {
-    "typescript": "^4.9.0",
-    "firebase-functions-test": "^3.0.0"
+    "firebase-functions-test": "^3.0.0",
+    "typescript": "^5.0.3"
   },
   "private": true
 }

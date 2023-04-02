@@ -56,6 +56,12 @@ const router = createRouter({
             },
           ],
         },
+        {
+          path: '/payment',
+          name: 'Payment',
+          component: () => import('@/views/payment/index').then(x => x.Payment),
+          meta: { title: 'PJF - Payment' },
+        },
       ],
     },
     {
@@ -81,6 +87,12 @@ const router = createRouter({
           name: 'ManageProduct',
           component: () => import('@/views/dashboard/index').then(x => x.productManage),
           meta: { title: 'PJF - Manage Product' },
+        },
+        {
+          path: '/category/manage',
+          name: 'ManageCategory',
+          component: () => import('@/views/dashboard/index').then(x => x.categoryManage),
+          meta: { title: 'PJF - Manage Category' },
         },
       ],
     },

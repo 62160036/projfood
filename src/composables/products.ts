@@ -15,10 +15,9 @@ export default function ProductData() {
 
       return products.data
     },
-    async createProduct(id: string, code: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
+    async createProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
       const docRef = {
         id,
-        code,
         name,
         description,
         price,
@@ -30,10 +29,9 @@ export default function ProductData() {
       }
       return await setDoc(doc(db, 'products', `${id}`), docRef)
     },
-    async updateProduct(id: string, code: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
+    async updateProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
       const docRef = {
         id,
-        code,
         name,
         description,
         price,

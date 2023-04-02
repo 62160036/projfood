@@ -57,14 +57,14 @@
                 </div>
               </div>
               <div class="col-6">
-                <div v-for="itm, index in category" :key="index">
+                <div v-for="itm, index in categoryList" :key="index">
                   <span v-if="item.category === itm.value" class="product-category">{{ item.category === itm.value ? itm.label : '' }}</span>
                 </div>
               </div>
               <div class="col-6">
                 <div class="flex justify-content-center align-items-center">
                   <InputNumber
-                    v-model="quantity" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :step="1" :min="0" :max="item.quantity"
+                    v-model="quantity" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :min="0" :max="item.quantity"
                     incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
                     @change="calculateTotalPrice(item.price, quantity)"
                   />
@@ -77,6 +77,7 @@
                     icon="pi pi-shopping-cart"
                     class="p-button-rounded p-button-success"
                     :disabled="quantity === 0 || !isLoggedin"
+                    @click="addProductToCart()"
                   />
                 </div>
               </div>
@@ -92,14 +93,21 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAuth, onAuthStateChanged } from '@firebase/auth'
-import ProductData from '@/composables/products'
+import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import formatCurrency from '@/plugins/formatCurrency'
+import db from '@/main'
+import CategoryData from '@/composables/categories'
+import OrderData from '@/composables/orders'
 
 const route = useRoute()
 const routeID = ref()
-const productData = ProductData()
 
 const isLoggedin = ref(true)
+const categoryData = CategoryData()
+const categories = ref<any>({
+  data: [],
+})
+const categoryList = computed(() => categories.value.data)
 
 function getRouteId() {
   routeID.value = route.params.name
@@ -108,10 +116,13 @@ function getRouteId() {
 const products = ref<any>({
   data: [],
 })
-const productList = computed(() => products.value.data.filter((item: any) => item.id === routeID.value))
+
+const productList = computed(() => {
+  return products.value.data
+})
 
 watch(() => route.params.id, () => {
-  getAllProducts()
+  getProductById()
   getRouteId()
 })
 
@@ -122,7 +133,15 @@ function calculateTotalPrice(price: number, quantity: number) {
   totalPrice.value = price * quantity
 }
 
+async function getAllCategories() {
+  categories.value.data = await categoryData.getAllCategories()
+}
+
 watch(() => quantity.value, () => {
+  calculateTotalPrice(productList.value[0].price, quantity.value)
+})
+watch(() => products.value.data, () => {
+  quantity.value = 0
   calculateTotalPrice(productList.value[0].price, quantity.value)
 })
 
@@ -142,28 +161,89 @@ const status = ref([
   { label: 'สินค้า', value: 'product' },
 ])
 
-const category = ref([
-  { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
-  { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
-  { label: 'อาหารทะเลแช่แข็ง', value: 'FrozenSeafood' },
-  { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
-])
+async function getProductById() {
+  const q = query(collection(db, 'products'), where('id', '==', routeID.value))
 
-async function getAllProducts() {
-  products.value.data = await productData.getAllProducts()
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      products.value.data = [
+        {
+          id: doc.id,
+          ...doc.data(),
+        },
+
+      ]
+    })
+  })
+}
+
+function createId() {
+  const id = ref('')
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const char = ref('')
+  for (let i = 0; i < 10; i++)
+    char.value += chars.charAt(Math.floor(Math.random() * chars.length))
+
+  id.value = `order_${char.value}`
+
+  return id
+}
+
+const user_id = ref<any>()
+const orderData = OrderData()
+const orders = ref<any>({
+  data: [],
+})
+
+const orderList = computed(() => {
+  return orders.value.data
+})
+
+async function getAllOrders() {
+  orders.value.data = await orderData.getAllOrders()
+}
+
+function addProductToCart() {
+  getAllOrders()
+  if (orderList.value.find((item: any) => item.product.id === productList.value[0].id)) {
+    const id = orderList.value.find((item: any) => item.product.id === productList.value[0].id).order_id
+    orderData.updateOrder(id, quantity.value, totalPrice.value)
+  }
+  else {
+    const id = createId()
+    const order = {
+      id: id.value,
+      user_id: user_id.value,
+      order_price: productList.value[0].price,
+      quantity: quantity.value,
+      totalPrice: totalPrice.value,
+      status: 'waiting_for_payment',
+    }
+    const product: any
+    = {
+      id: productList.value[0].id,
+      name: productList.value[0].name,
+      image: productList.value[0].image,
+    }
+    orderData.createOrder(order.id, product, order.user_id, order.order_price, order.quantity, order.totalPrice, order.status)
+  }
 }
 
 (async () => {
   getRouteId()
-  getAllProducts()
+  getProductById()
+  getAllCategories()
+  getAllOrders()
 
   const auth = getAuth()
 
   onAuthStateChanged(auth, (user) => {
-    if (user)
+    if (user) {
       isLoggedin.value = true
+      user_id.value = user.uid
+    }
 
-    else isLoggedin.value = false
+    else { isLoggedin.value = false }
   })
 })()
 </script>

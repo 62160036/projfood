@@ -173,6 +173,7 @@ function forgotPassword() {
 }
 
 function goToSignUp() {
+  displayModal.value = false
   router.push('/sign-up')
 }
 

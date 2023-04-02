@@ -33,7 +33,7 @@
                 {{ slotProps.data.description }}
               </div> -->
               <i class="pi pi-tag product-category-icon" />
-              <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
+              <span v-for="item, index in categoryList" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
             </div>
             <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
               <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
@@ -55,7 +55,7 @@
             <div class="product-grid-item-top">
               <div>
                 <i class="pi pi-tag product-category-icon" />
-                <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
+                <span v-for="item, index in categoryList" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
               </div>
               <span :class="`product-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">
                 {{ statuses.filter((item: any) => item.value === slotProps.data.inventoryStatus)[0].label }}
@@ -93,10 +93,12 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ProductData from '@/composables/products'
 import formatCurrency from '@/plugins/formatCurrency'
+import CategoryData from '@/composables/categories'
 
 const route = useRoute()
 const routeID = ref()
 const productData = ProductData()
+const categoryData = CategoryData()
 
 function getRouteId() {
   routeID.value = route.params.id
@@ -105,6 +107,15 @@ const products = ref<any>({
   data: [],
 })
 const productList = computed(() => products.value.data.filter((item: any) => item.category === routeID.value))
+
+const categories = ref<any>({
+  data: [],
+})
+const categoryList = computed(() => categories.value.data)
+
+async function getAllCategories() {
+  categories.value.data = await categoryData.getAllCategories()
+}
 
 watch(() => route.params.id, () => {
   getAllProducts()
@@ -125,13 +136,6 @@ const statuses = ref([
   { label: 'มีสินค้า', value: 'INSTOCK' },
   { label: 'สินค้ามีน้อย', value: 'LOWSTOCK' },
   { label: 'สินค้าหมด', value: 'OUTOFSTOCK' },
-])
-
-const category = ref([
-  { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
-  { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
-  { label: 'อาหารทะเลแช่แข็ง', value: 'FrozenSeafood' },
-  { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
 ])
 
 function onSortChange(event: any) {
@@ -157,6 +161,7 @@ async function getAllProducts() {
 (() => {
   getRouteId()
   getAllProducts()
+  getAllCategories()
 })()
 </script>
 

@@ -35,7 +35,7 @@
                 {{ slotProps.data.description }}
               </div> -->
               <i class="pi pi-tag product-category-icon" />
-              <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
+              <span v-for="item, index in categoryList" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
             </div>
             <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
               <span class="product-price">{{ formatCurrency(slotProps.data.price) }}</span>
@@ -57,7 +57,7 @@
             <div class="product-grid-item-top">
               <div>
                 <i class="pi pi-tag product-category-icon" />
-                <span v-for="item, index in category" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
+                <span v-for="item, index in categoryList" :key="index" class="product-category">{{ slotProps.data.category === item.value ? item.label : '' }}</span>
               </div>
               <span :class="`product-badge status-${slotProps.data.inventoryStatus.toLowerCase()}`">
                 {{ statuses.filter((item: any) => item.value === slotProps.data.inventoryStatus)[0].label }}
@@ -94,14 +94,25 @@ import { computed, ref } from 'vue'
 import ProductData from '@/composables/products'
 import formatCurrency from '@/plugins/formatCurrency'
 import Banner from '@/components/Layout/Banner.vue'
+import CategoryData from '@/composables/categories'
 
 const productData = ProductData()
+const categoryData = CategoryData()
 
 const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
 const products = ref<any>({
   data: [],
 })
 const productList = computed(() => products.value.data)
+const categories = ref<any>({
+  data: [],
+})
+const categoryList = computed(() => categories.value.data)
+
+async function getAllCategories() {
+  categories.value.data = await categoryData.getAllCategories()
+}
+
 const layout = ref<any>('grid')
 const sortKey = ref<any>()
 const sortOrder = ref<any>()
@@ -115,13 +126,6 @@ const statuses = ref([
   { label: 'มีสินค้า', value: 'INSTOCK' },
   { label: 'สินค้ามีน้อย', value: 'LOWSTOCK' },
   { label: 'สินค้าหมด', value: 'OUTOFSTOCK' },
-])
-
-const category = ref([
-  { label: 'ผักผลไม้', value: 'FruitsAndVegetables' },
-  { label: 'เนื้อสัตว์แช่แข็ง', value: 'FrozenMeats' },
-  { label: 'อาหารทะเลแช่แข็ง', value: 'FrozenSeafood' },
-  { label: 'อาหารสำเร็จรูป', value: 'InstantFood' },
 ])
 
 function onSortChange(event: any) {
@@ -146,6 +150,7 @@ async function getAllProducts() {
 
 (() => {
   getAllProducts()
+  getAllCategories()
 })()
 </script>
 
