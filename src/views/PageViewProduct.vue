@@ -145,6 +145,10 @@ watch(() => products.value.data, () => {
   calculateTotalPrice(productList.value[0].price, quantity.value)
 })
 
+watch(() => routeID.value, () => {
+  getProductById()
+})
+
 const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
 
 const statuses = ref([
@@ -205,7 +209,7 @@ async function getAllOrders() {
 
 function addProductToCart() {
   getAllOrders()
-  if (orderList.value.find((item: any) => item.product.id === productList.value[0].id)) {
+  if (orderList.value.find((item: any) => item.product.id === productList.value[0].id && item.order_status === 'waiting_for_payment')) {
     const id = orderList.value.find((item: any) => item.product.id === productList.value[0].id).order_id
     orderData.updateOrder(id, quantity.value, totalPrice.value)
   }

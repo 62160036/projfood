@@ -5,9 +5,23 @@
       <div class="grid align-items-center justify-content-center justify-content-start mr-2 ml-2 mb-2">
         <HeaderLogo class="m-4" />
 
-        <From class="col-6 mr-3 mt-2">
-          <InputText class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" />
-        </From>
+        <div class="col-6 mr-3 mt-2">
+          <InputText v-model="search" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" placeholder="ค้นหาสินค้า, หมวดหมู่" />
+          <div v-if="search.length > 0" class="searchbar" style="margin: 10px">
+            <div
+              v-for="product in searchedProducts"
+              :key="product.id"
+              class="card ui fluid"
+              style="margin: 0"
+            >
+              <div class="searchbar-content">
+                <div class="header" @click="searchProduct(product.category, product.id)">
+                  {{ product.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div v-if="!isLoggedin" class="text-right col-md-12 mt-2" :class="{ 'col-sm': 'col-sm' }">
           <Button label="เข้าสู่ระบบ" icon="pi pi-sign-in" class="mr-3 p-button-raised p-button-secondary" @click="openModalSignIn" />
@@ -136,6 +150,7 @@ import OrderData from '@/composables/orders'
 import ModalSignIn from '@/views/Auth/ModalSignIn.vue'
 
 import db from '@/main'
+import ProductData from '@/composables/products'
 
 const categoryData = CategoryData()
 const categories = ref<any>({
@@ -311,8 +326,34 @@ function Payment() {
   router.push('/payment')
 }
 
+const productData = ProductData()
+const search = ref('')
+const products = ref<any>({
+  data: [],
+})
+const productList = computed(() => products.value.data)
+
+async function getAllProducts() {
+  products.value.data = await productData.getAllProducts()
+}
+
+const searchedProducts = computed(() => {
+  return productList.value.filter((product: any) => {
+    return (
+      product.name
+        .includes(search.value)
+    )
+  })
+})
+
+function searchProduct(category: string, id: string) {
+  router.push(`/view/${category}/${id}`)
+  search.value = ''
+}
+
 (async () => {
   const auth = getAuth()
+  getAllProducts()
   getAllCategories()
   getAllOrders()
 
@@ -352,5 +393,14 @@ function Payment() {
     background-color: var(--surface-card);
     transition: left 0.2s;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.02), 0px 0px 2px rgba(0, 0, 0, 0.05), 0px 1px 4px rgba(0, 0, 0, 0.08);
+}
+.searchbar{
+  position: fixed;
+  height: 200px;
+  width: 850px;
+  z-index: 997;
+  .searchbar-content{
+    cursor: pointer;
+  }
 }
 </style>

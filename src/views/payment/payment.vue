@@ -251,9 +251,15 @@ function confirmOrder() {
   const payment_image = image.value
   orderList.value.forEach((order: any, index: any) => {
     const order_id = orderList.value[index].order_id
-    orderId.push(order_id)
+    orderId.push({
+      order_id: orderList.value[index].order_id,
+      product_id: orderList.value[index].product.id,
+      product_name: orderList.value[index].product.name,
+      product_price: orderList.value[index].order_price,
+      product_amount: orderList.value[index].quantity,
+    })
     orderData.updateOrderStatus(order_id, order_status)
-    paymentData.createPayment(payment_id, orderId, userId, payment_image, payment_status)
+    paymentData.createPayment(payment_id, orderId, userId, payment_image, sumPrice.value, payment_status)
   })
   showSuccess('สั่งซื้อสินค้าเรียบร้อย')
   toggleDialog()
