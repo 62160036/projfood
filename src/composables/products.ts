@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore'
 import db from '@/main'
 
@@ -15,7 +15,7 @@ export default function ProductData() {
 
       return products.data
     },
-    async createProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
+    async createProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, productStatus: string, category: string) {
       const docRef = {
         id,
         name,
@@ -23,13 +23,30 @@ export default function ProductData() {
         price,
         image,
         quantity,
-        inventoryStatus,
+        inventoryStatus: 'INSTOCK',
         productStatus,
         category,
       }
       return await setDoc(doc(db, 'products', `${id}`), docRef)
     },
-    async updateProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, inventoryStatus: string, productStatus: string, category: string) {
+    async updateProduct(id: string, name: string, description: string, price: number, image: string, quantity: number, productStatus: string, category: string) {
+      const inventoryStatus = ref('')
+
+      const statuses = ref([
+        { label: 'INSTOCK', value: 'INSTOCK' },
+        { label: 'LOWSTOCK', value: 'LOWSTOCK' },
+        { label: 'OUTOFSTOCK', value: 'OUTOFSTOCK' },
+      ])
+
+      if (quantity <= 0)
+        inventoryStatus.value = statuses.value[2].value
+
+      else if (quantity <= 10)
+        inventoryStatus.value = statuses.value[1].value
+
+      else
+        inventoryStatus.value = statuses.value[0].value
+
       const docRef = {
         id,
         name,
@@ -37,7 +54,8 @@ export default function ProductData() {
         price,
         image,
         quantity,
-        inventoryStatus,
+        inventoryStatus: inventoryStatus.value,
+        productStatus,
         category,
       }
       return await updateDoc(doc(db, 'products', `${id}`), docRef)
@@ -63,6 +81,28 @@ export default function ProductData() {
       })
       return products.data
     },
+    async updateQuantityandInventoryStatus(id: string, quantity: number) {
+      const inventoryStatus = ref('')
+      const statuses = ref([
+        { label: 'INSTOCK', value: 'INSTOCK' },
+        { label: 'LOWSTOCK', value: 'LOWSTOCK' },
+        { label: 'OUTOFSTOCK', value: 'OUTOFSTOCK' },
+      ])
 
+      if (quantity <= 0)
+        inventoryStatus.value = statuses.value[2].value
+
+      else if (quantity <= 10)
+        inventoryStatus.value = statuses.value[1].value
+
+      else
+        inventoryStatus.value = statuses.value[0].value
+
+      const docRef = {
+        quantity,
+        inventoryStatus: inventoryStatus.value,
+      }
+      return await updateDoc(doc(db, 'products', `${id}`), docRef)
+    },
   }
 }

@@ -110,7 +110,7 @@
         <small v-if="submitted && !product.description" class="p-error">รายละเอียดสินค้าจำเป็นต้องระบุ</small>
       </div>
 
-      <div class="field">
+      <!-- <div class="field">
         <label for="inventoryStatus" class="mb-3">สถานะสินค้าคงคลัง</label>
         <Dropdown
           id="inventoryStatus" v-model="product.inventoryStatus" :options="statuses" optionLabel="label"
@@ -132,7 +132,7 @@
           </template>
         </Dropdown>
         <small v-if="submitted && !product.inventoryStatus" class="p-error">สถานะสินค้าคงคลังจำเป็นต้องระบุ</small>
-      </div>
+      </div> -->
 
       <div class="field">
         <label for="productStatus" class="mb-3">สถานะสินค้า</label>
@@ -288,6 +288,7 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 const submitted = ref(false)
+
 const statuses = ref([
   { label: 'INSTOCK', value: 'INSTOCK' },
   { label: 'LOWSTOCK', value: 'LOWSTOCK' },
@@ -436,21 +437,21 @@ function saveProduct() {
   if (product.value.name.trim()) {
     if (product.value.id) {
       product.value.image = product.value.image ? product.value.image : 'product-placeholder.svg'
-      product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus
+      // product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus
       product.value.category = product.value.category.value ? product.value.category.value : product.value.category
       product.value.productStatus = product.value.productStatus.value ? product.value.productStatus.value : product.value.productStatus
-      productData.updateProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
+      productData.updateProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 })
     }
     else {
       product.value.id = createId()
       product.value.image = fileName.value ? product.value.image : 'product-placeholder.svg'
-      product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK'
+      // product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK'
       product.value.productStatus = product.value.productStatus ? product.value.productStatus.value : 'product'
       product.value.category = product.value.category ? product.value.category.value : 'category'
       product.value.price = product.value.price ? product.value.price : 0
       product.value.quantity = product.value.quantity ? product.value.quantity : 0
-      productData.createProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.inventoryStatus, product.value.productStatus, product.value.category)
+      productData.createProduct(product.value.id, product.value.name, product.value.description, product.value.price, product.value.image, product.value.quantity, product.value.productStatus, product.value.category)
       toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 })
     }
     getAllProducts()

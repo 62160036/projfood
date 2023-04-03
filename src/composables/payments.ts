@@ -4,15 +4,16 @@ import db from '@/main'
 
 export default function PaymentData() {
   return {
-    async createPayment(payment_id: string, order_id: string[], user_id: string, payment_image: string, total_price: number, payment_status: string) {
+    async createPayment(payment_id: string, order_id: string[], users: string[], payment_image: string, total_price: number, payment_status: string, address: string[]) {
       const docRef = {
         payment_id,
         orders: order_id,
-        user_id,
+        users,
         payment_image,
         total_price,
         payment_date: new Date(),
         payment_status,
+        address,
         shipping_status: 'pending',
       }
       return await setDoc(doc(db, 'payments', `${payment_id}`), docRef)
@@ -34,6 +35,13 @@ export default function PaymentData() {
       })
 
       return payments.data
+    },
+    async updatePaymentStatus(payment_id: string, payment_status: string) {
+      const paymentRef = doc(db, 'payments', payment_id)
+      await updateDoc(paymentRef, {
+        payment_status,
+        shipping_status: 'shipped',
+      })
     },
   }
 }

@@ -1,27 +1,32 @@
 <template>
   <div class="m-2 mx-4">
     <div class="flex">
-      <div class="col-4">
+      <div class="col-5">
         <div class="flex justify-content-center align-items-center font-bold mb-4">
           สถานะการส่งสินค้า
         </div>
         <Divider />
-
-        <Timeline :value="events1">
-          <template v-slot:opposite="slotProps">
-            <small class="p-text-secondary">{{ slotProps.item.date }}</small>
-          </template>
-          <template v-slot:marker="slotProps">
-            <span class="custom-marker shadow-2" :style="{ backgroundColor: slotProps.item.color }">
-              <i :class="slotProps.item.icon" />
-            </span>
-          </template>
-          <template v-slot:content="slotProps">
-            {{ slotProps.item.status }}
-          </template>
-        </Timeline>
+        <div v-for="item, index in paymentList" :key="index">
+          <div>
+            #{{ item.payment_id }}
+          </div>
+          <div class="flex">
+            <div class="col">
+              สถานะการส่งสินค้า :
+              <span class="flex">{{ item.shipping_status === "shipped" ? "จัดส่งแล้ว" : "รอการจัดส่ง" }}</span>
+            </div>
+            <div class="col-1">
+              <Divider layout="vertical" />
+            </div>
+            <div class="col">
+              ที่อยู่ในการจัดส่ง :
+              <span class="flex">{{ item.address.address_info }}</span>
+            </div>
+          </div>
+          <Divider />
+        </div>
       </div>
-      <div class="col-2">
+      <div class="col-1">
         <Divider layout="vertical" />
       </div>
       <div class="col-6">
@@ -103,6 +108,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import ModalEditAddress from './ModalEditAddress.vue'
 import Address from './data/address'
 import UserData from '@/composables/users'
+import PaymentData from '@/composables/payments'
 
 const dataAddress = Address()
 
@@ -110,12 +116,26 @@ const stateAddress = computed(() =>
   dataAddress.stateAddress.value,
 )
 
-const events1 = ref([
-  { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
-  { status: 'Processing', date: '15/10/2020 14:00', icon: 'pi pi-cog', color: '#673AB7' },
-  { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
-  { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' },
-])
+const paymentData = PaymentData()
+const payments = ref<any>({
+  data: [],
+})
+
+const paymentList = computed(() => {
+  return payments.value.data
+})
+
+async function getAllPayments() {
+  payments.value.data = await paymentData.getAllPayments()
+}
+
+// const events1 = ref([
+//   { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
+//   { status: 'Processing', date: '15/10/2020 14:00', icon: 'pi pi-cog', color: '#673AB7' },
+//   { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
+//   { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' },
+// ])
+
 const confirm = useConfirm()
 const auth = getAuth()
 const indexAd = ref('')
@@ -163,6 +183,7 @@ async function deleteAddress(index: string, event: { currentTarget: any }) {
 
 (() => {
   dataAddress.getAddress()
+  getAllPayments()
 })()
 </script>
 

@@ -7,45 +7,40 @@
         </div>
         <Divider />
         <div v-for="item, index in paymentList" :key="index">
-          <div v-if="item.payment_status === 'paymented_waiting_for_confirm'">
-            <div>
-              #{{ item.payment_id }}
-            </div>
-            <div class="flex">
-              <div class="col">
-                วันที่สั่งซื้อ :
-                <span class="flex">{{ dateConverter(item.payment_date, 'th-TH') }}</span>
-              </div>
-              <div class="col-1">
-                <Divider layout="vertical" />
-              </div>
-              <div class="col-2">
-                ยอดรวม :
-                <span class="flex">{{ formatCurrency(item.total_price) }}</span>
-              </div>
-              <div class="col-1">
-                <Divider layout="vertical" />
-              </div>
-              <div class="col">
-                สถานะการชำระเงิน :
-                <span class="flex">{{ item.payment_status === "paymented_waiting_for_confirm" ? "ชำระเงินแล้ว" : "รอการชำระเงิน" }}</span>
-              </div>
-              <div class="col-1">
-                <Divider layout="vertical" />
-              </div>
-              <div class="col">
-                สถานะการส่งสินค้า :
-                <span class="flex">{{ item.shipping_status === "shipping" ? "กำลังจัดส่ง" : "รอการจัดส่ง" }}</span>
-              </div>
-            </div>
-            <div>
-              <Button label="ดูรายละเอียด" @click="showOrderDetail(item.payment_id)" />
-            </div>
-            <Divider />
+          <div>
+            #{{ item.payment_id }}
           </div>
-          <div v-else class="flex justify-content-center align-items-center font-bold mb-4">
-            ไม่มีประวัติการสั่งซื้อ
+          <div class="flex">
+            <div class="col">
+              วันที่สั่งซื้อ :
+              <span class="flex">{{ dateConverter(item.payment_date) }}</span>
+            </div>
+            <div class="col-1">
+              <Divider layout="vertical" />
+            </div>
+            <div class="col-2">
+              ยอดรวม :
+              <span class="flex">{{ formatCurrency(item.total_price) }}</span>
+            </div>
+            <div class="col-1">
+              <Divider layout="vertical" />
+            </div>
+            <div class="col">
+              สถานะการชำระเงิน :
+              <span class="flex">{{ item.payment_status === "paymented_waiting_for_confirm" ? "ชำระเงินแล้ว" : "รอการชำระเงิน" }}</span>
+            </div>
+            <div class="col-1">
+              <Divider layout="vertical" />
+            </div>
+            <div class="col">
+              สถานะการส่งสินค้า :
+              <span class="flex">{{ item.shipping_status === "shipped" ? "จัดส่งแล้ว" : "รอการจัดส่ง" }}</span>
+            </div>
           </div>
+          <div>
+            <Button label="ดูรายละเอียด" @click="showOrderDetail(item.payment_id)" />
+          </div>
+          <Divider />
         </div>
       </div>
     </div>
@@ -67,7 +62,7 @@
             <Divider layout="vertical" />
           </div>
           <div class="col">
-            สถานะ: {{ paymentDetailList.shipping_status === "shipping" ? "กำลังจัดส่ง" : "รอการจัดส่ง" }}
+            สถานะ: {{ paymentDetailList.shipping_status === "shipped" ? "จัดส่งแล้ว" : "รอการจัดส่ง" }}
           </div>
         </div>
         <div class="col">

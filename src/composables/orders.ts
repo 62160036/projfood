@@ -15,11 +15,11 @@ export default function OrderData() {
 
       return orders.data
     },
-    async createOrder(order_id: string, product: string[], user_id: string, order_price: number, quantity: number, total_price: number, order_status: string) {
+    async createOrder(order_id: string, product: string[], users: string[], order_price: number, quantity: number, total_price: number, order_status: string) {
       const docRef = {
         order_id,
         product,
-        user_id,
+        users,
         order_price,
         quantity,
         total_price,

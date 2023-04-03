@@ -116,7 +116,23 @@
                 </template>
               </FileUpload>
             </div>
-            <Button label="ยืนยันการสั่งซื้อ" icon="pi pi-check" class="p-button-success" @click="confirmOrder" />
+            <div class="field">
+              <label for="address" class="font-bold">ที่อยู่จัดส่ง</label>
+              <div v-for="item, index in address" :key="index">
+                <div class="flex justify-content-between">
+                  <div>
+                    <RadioButton v-model="selectedAddress" :value="item" />
+                  </div>
+                  <div>
+                    <div class="font-bold">
+                      {{ item.label }}
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </div>
+            </div>
+            <Button v-if="image !== '' && selectedAddress !== null" label="ยืนยันการสั่งซื้อ" icon="pi pi-check" class="p-button-success" @click="confirmOrder" />
           </div>
         </div>
       </div>
@@ -125,15 +141,53 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { getAuth, onAuthStateChanged } from '@firebase/auth'
 import { ref as StorageRef, getDownloadURL, getStorage, uploadBytes } from 'firebase/storage'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { collection, onSnapshot, query, where } from '@firebase/firestore'
 import formatCurrency from '@/plugins/formatCurrency'
 import generateQRcode from '@/plugins/generateQRcode'
 import OrderData from '@/composables/orders'
 import PaymentData from '@/composables/payments'
+import ProductData from '@/composables/products'
+import db from '@/main'
+
+interface ProflieState {
+  email: string | null
+  firstname: string
+  lastname: string
+  phone: string
+
+}
+
+const state = ref<ProflieState>({
+  email: '',
+  firstname: '',
+  lastname: '',
+  phone: '',
+})
+
+interface AddressState {
+  address_id: string
+  address_info: any
+  sub_district: string
+  district: string
+  province: string
+  zip: string
+  length: number
+}
+
+const stateAddress = ref<AddressState>({
+  address_id: '',
+  address_info: '',
+  sub_district: '',
+  district: '',
+  province: '',
+  zip: '',
+  length: 0,
+})
 
 const selectedProduct = ref()
 const isLoggedin = ref(true)
@@ -174,6 +228,7 @@ const parliamentSVG = ref<any>('')
 const user_id = ref<any>()
 const orderData = OrderData()
 const paymentData = PaymentData()
+const productData = ProductData()
 const orders = ref<any>({
   data: [],
 })
@@ -242,13 +297,31 @@ function onAdvancedUpload(event: any) {
   showSuccess('อัพโหลดสลิปเรียบร้อย')
 }
 
+const products = ref<any>({
+  data: [],
+})
+
+const productList = computed(() => products.value.data)
+
+async function getAllProducts() {
+  products.value.data = await productData.getAllProducts()
+}
+
+const selectedAddress = ref<any>()
+
 function confirmOrder() {
   const orderId: any = []
   const payment_id = createId().value
-  const userId = user_id.value
+  const userId: any = {
+    user_id: user_id.value,
+    firstname: state.value.firstname,
+    lastname: state.value.lastname,
+  }
   const order_status = 'paymented'
   const payment_status = 'paymented_waiting_for_confirm'
   const payment_image = image.value
+  const address: any = selectedAddress.value.value
+
   orderList.value.forEach((order: any, index: any) => {
     const order_id = orderList.value[index].order_id
     orderId.push({
@@ -258,8 +331,12 @@ function confirmOrder() {
       product_price: orderList.value[index].order_price,
       product_amount: orderList.value[index].quantity,
     })
+    const product_quantity = productList.value.find((product: any) => product.id === orderList.value[index].product.id).quantity
+    const amount = product_quantity - orderList.value[index].quantity
+
+    productData.updateQuantityandInventoryStatus(orderList.value[index].product.id, amount)
     orderData.updateOrderStatus(order_id, order_status)
-    paymentData.createPayment(payment_id, orderId, userId, payment_image, sumPrice.value, payment_status)
+    paymentData.createPayment(payment_id, orderId, userId, payment_image, sumPrice.value, payment_status, address)
   })
   showSuccess('สั่งซื้อสินค้าเรียบร้อย')
   toggleDialog()
@@ -269,11 +346,72 @@ async function getAllOrders() {
   orders.value.data = await orderData.getAllOrders()
 }
 
+const address: any = computed(() => {
+  return stateAddress.value
+})
+
+async function getUserProfile() {
+  const auth = getAuth()
+  const user = auth.currentUser
+
+  if (user !== null) {
+  // The user object has basic properties such as display name, email, etc.
+    const email = user.email
+    state.value.email = email
+    // The user's ID, unique to the Firebase project. Do NOT use
+    // this value to authenticate with your backend server, if
+    // you have one. Use User.getToken() instead.
+    const uid = user.uid
+    readUserData(uid)
+    getAddress(uid)
+  }
+}
+
+async function readUserData(userId: string) {
+  const q = query(collection(db, 'users'), where('userId', '==', userId))
+
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      state.value = {
+        email: doc.data().email,
+        firstname: doc.data().firstname,
+        lastname: doc.data().lastname,
+        phone: doc.data().phone,
+      }
+    })
+  })
+}
+
+onMounted(() => {
+  const auth = getAuth()
+  const user = auth.currentUser
+  getAddress(user)
+})
+
+async function getAddress(user: any) {
+  const q = query(collection(db, 'users'), where('userId', '==', user?.uid))
+
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      stateAddress.value = doc.data().address.map((address: any) => {
+        return {
+          label: address.address_info,
+          value: address,
+        }
+      })
+    })
+  })
+}
+
 (async () => {
+  getUserProfile()
+  getAllProducts()
   getAllOrders()
 
   const auth = getAuth()
+  const user = auth.currentUser
 
+  getAddress(user)
   onAuthStateChanged(auth, (user) => {
     if (user) {
       isLoggedin.value = true

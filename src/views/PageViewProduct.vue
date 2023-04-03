@@ -99,6 +99,21 @@ import db from '@/main'
 import CategoryData from '@/composables/categories'
 import OrderData from '@/composables/orders'
 
+interface ProflieState {
+  email: string | null
+  firstname: string
+  lastname: string
+  phone: string
+
+}
+
+const state = ref<ProflieState>({
+  email: '',
+  firstname: '',
+  lastname: '',
+  phone: '',
+})
+
 const route = useRoute()
 const routeID = ref()
 
@@ -223,17 +238,54 @@ function addProductToCart() {
       totalPrice: totalPrice.value,
       status: 'waiting_for_payment',
     }
+    const users: any = {
+      user_id: user_id.value,
+      firstname: state.value.firstname,
+      lastname: state.value.lastname,
+    }
     const product: any
     = {
       id: productList.value[0].id,
       name: productList.value[0].name,
       image: productList.value[0].image,
     }
-    orderData.createOrder(order.id, product, order.user_id, order.order_price, order.quantity, order.totalPrice, order.status)
+    orderData.createOrder(order.id, product, users, order.order_price, order.quantity, order.totalPrice, order.status)
   }
 }
 
+async function getUserProfile() {
+  const auth = getAuth()
+  const user = auth.currentUser
+
+  if (user !== null) {
+  // The user object has basic properties such as display name, email, etc.
+    const email = user.email
+    state.value.email = email
+    // The user's ID, unique to the Firebase project. Do NOT use
+    // this value to authenticate with your backend server, if
+    // you have one. Use User.getToken() instead.
+    const uid = user.uid
+    readUserData(uid)
+  }
+}
+
+async function readUserData(userId: string) {
+  const q = query(collection(db, 'users'), where('userId', '==', userId))
+
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      state.value = {
+        email: doc.data().email,
+        firstname: doc.data().firstname,
+        lastname: doc.data().lastname,
+        phone: doc.data().phone,
+      }
+    })
+  })
+}
+
 (async () => {
+  getUserProfile()
   getRouteId()
   getProductById()
   getAllCategories()

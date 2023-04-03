@@ -94,6 +94,18 @@ const router = createRouter({
           component: () => import('@/views/dashboard/index').then(x => x.categoryManage),
           meta: { title: 'PJF - Manage Category' },
         },
+        {
+          path: '/order/manage',
+          name: 'ManageOrder',
+          component: () => import('@/views/dashboard/index').then(x => x.orderManage),
+          meta: { title: 'PJF - Manage Order' },
+        },
+        {
+          path: '/report/manage',
+          name: 'ManageReport',
+          component: () => import('@/views/dashboard/index').then(x => x.reportManage),
+          meta: { title: 'PJF - Manage Report' },
+        },
       ],
     },
 
