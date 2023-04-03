@@ -164,7 +164,7 @@ watch(() => routeID.value, () => {
   getProductById()
 })
 
-const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=59bf9fe8-8848-4e48-9681-4d66bb17dd5f')
+const noImage = ref('https://firebasestorage.googleapis.com/v0/b/prjfood-dc319.appspot.com/o/products%2Fproduct-placeholder.svg?alt=media&token=e6b54247-37f3-4bfa-a584-dd52122a4673')
 
 const statuses = ref([
   { label: 'มีสินค้า', value: 'INSTOCK' },
